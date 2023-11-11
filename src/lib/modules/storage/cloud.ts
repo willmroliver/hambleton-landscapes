@@ -1,0 +1,15 @@
+import { storage, storageRef } from "$lib/services/firebase/app";
+import { uploadBytes } from "firebase/storage";
+
+const upload = async (path: string, file: File) => {
+    const fullPath = `${path}/${file.name}`
+    const ref = storageRef(fullPath)
+
+    const snapshot = await uploadBytes(ref, file)
+
+    console.log('success:', snapshot)
+}
+
+export {
+    upload,
+}

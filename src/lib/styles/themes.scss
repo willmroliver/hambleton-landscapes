@@ -1,0 +1,22 @@
+@import "colors.scss";
+
+.primary {
+    background-color: $primary;
+    color: $white;
+}
+.secondary {
+    background-color: $secondary;
+    color: $white;
+}
+.light {
+    background-color: $light;
+    color: $black;
+}
+.dark {
+    background-color: $dark;
+    color: $white;
+}
+.danger {
+    background-color: $danger;
+    color: $white;
+}
