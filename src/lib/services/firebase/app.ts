@@ -1,4 +1,8 @@
+import firebase from "firebase/compat/app";
+import "firebase/firestore";
+
 import { initializeApp } from "firebase/app"
+import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth"
 import { getStorage, ref } from "firebase/storage"
 
@@ -15,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const storage = getStorage(app)
+const db = getFirestore(app)
 
 auth.useDeviceLanguage()
 
@@ -27,4 +32,5 @@ export {
     auth,
     storage,
     storageRef,
+    db,
 }

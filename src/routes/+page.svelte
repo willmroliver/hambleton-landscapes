@@ -8,50 +8,47 @@
     import ImageUpload from "$lib/components/inputs/ImageUpload.svelte"
 </script>
 
-<Image src="logo-primary.svg" alt="logo" height={300} fit="contain" />
-<h2>York, North Yorkshire</h2>
+<Image src="logo-primary.svg" alt="logo" height={300} fit="fill" style="padding: 1rem 0;" />
 
-<ImageUpload class="upload" theme="light" />
-
-<div>
-    <Button theme="primary" on:click={() => {console.log('Primary')}}>Primary</Button>
-    <Button theme="secondary">Secondary</Button>
-    <Button theme="light">Light</Button>
-    <Button theme="dark">Dark</Button>
-    <Button theme="danger">Danger</Button>
+<div class="primary">
+    <h2>Bespoke Landscaping Services</h2>
+    <p>
+        With a combined experience of more than 50 years, we bring new life to gardens across North Yorkshire.
+        From plant to patio, in city gardens and open acres, a service you can trust to deliver.
+    </p>
 </div>
 
-<div class="form">
-    <TextInput label="Label One" class="in vw-50" />
-    <TextInput label="Label Two" class="in vw-50" />
-    <Checkbox label="Primary" class="in" />
-    <Checkbox label="Danger" theme="danger" class="in" />
-
-    <TextArea label="Label" class="in" style="width: 50vw;" placeholder="Placeholder" />
+<div class="light">
+    <h2>A Team You Can Trust</h2>
 </div>
 
 <style lang="scss">
-    @import "$lib/styles/colors.scss";
+    @import "$lib/styles/breakpoints.scss";
+    @import "$lib/styles/themes.scss";
 
-    :global(.upload) {
-        padding: 0.5rem;
-        margin-bottom: 1rem;
-
-        background-color: $light;
-    }
-
-    h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
     div {
-        margin-bottom: 1rem;
+        width: 100%;
+        min-height: 50vh;
+        padding: 1rem;
+
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            text-align: justify;
+            max-width: 40rem;
+        }
     }
 
-    .form :global(.vw-50) {
-        width: 50vw;
-    }
-    .form :global(.in) {
-        margin-bottom: 1rem;
+    @include md {
+        div {
+            align-items: center;
+        }
     }
 </style>

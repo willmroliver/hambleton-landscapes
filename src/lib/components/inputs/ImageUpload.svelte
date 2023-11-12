@@ -81,7 +81,7 @@
     div {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.25rem;
 
         border-radius: 0.25rem;
     }
@@ -90,7 +90,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: left;
-        gap: 0.5rem;
+        gap: 0.25rem;
 
         :global(.image-upload-options) {
             flex: 1 1 0px;

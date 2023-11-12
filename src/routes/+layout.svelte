@@ -72,7 +72,7 @@
     <div class="main">
         {#if $session.uid}
         <div class="profile light">
-            <span>Hello, {$session.displayName.split(' ')[0]}</span>
+            <span>Hello, {$session.admin ? 'Admin' : $session.displayName.split(' ')[0]}</span>
         </div>
         {/if}
 
@@ -81,7 +81,7 @@
 </div>
 
 <style global lang="scss">
-    @import "$lib/styles/colors.scss";
+    @import "$lib/styles/breakpoints.scss";
     @import "$lib/styles/themes.scss";
 
     :global(html) {
@@ -96,6 +96,10 @@
         max-height: 100vh;
 
         display: grid;
+        grid-template-rows: 5rem auto;
+        grid-template-columns: 1;
+        grid-template-areas: "nav" "main";
+
         position: relative;
 
         color: $primary;
@@ -110,12 +114,12 @@
             align-items: center;
 
             overflow: hidden;
-            overflow-y: auto;
+            overflow-y: scroll;
 
             .profile {
                 border-radius: 0.25rem;
                 padding: 0.5rem;
-                margin-left: auto;
+                margin: 0.5rem auto 0 0.5rem;
                 
                 font-size: 1.2rem;
                 
@@ -133,14 +137,24 @@
         }
         .nav {
             grid-area: nav;
-            display: flex;
-
-            background-color: $dark;
 
             position: relative;
+            align-items: left;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            background-color: $dark;
+            box-shadow: 0 0 100px 0 rgba(0,0,0,0.5);
             
             .toggle {
                 position: absolute;
+                top: 100%;
+                right: 1rem;
+                transform: translateY(-25%);
+                border-radius: 0 0 1rem 1rem;
 
                 width: 2rem;
                 height: 2rem;
@@ -158,23 +172,37 @@
                 cursor: pointer;
 
                 transition: all 200ms ease;
+
+                margin: 0 0.3rem 0 0.3rem;
             }
         }
     }
+    .hide-nav {
+        grid-template-rows: 0 auto;
 
-    @media only screen and (min-width: 701px) {
+        .toggle {
+            transform: translateY(-40%) !important;
+        }
+        .nav-item {
+            pointer-events: none;
+            opacity: 0;
+        }
+    }
+
+    @include md {
         .layout {
             grid-template-columns: 10rem auto;
-            grid-template-rows: 1;
+            grid-template-rows: auto;
             grid-template-areas: "nav main";
 
             .nav {
                 flex-direction: column;
-                align-items: left;
+                align-items: stretch;
                 justify-content: center;
                 
                 .nav-item {
                     margin: 0 0.6rem 0.6rem 0.6rem;
+                    text-align: center;
                 }
                 
                 .toggle {
@@ -185,7 +213,9 @@
                 }
             }
             .main {
-                padding: 1rem;
+                .profile {
+                    margin: 0.5rem auto 0 auto;
+                }
             }
         }
         .hide-nav {
@@ -193,47 +223,6 @@
 
             .toggle {
                 transform: translateX(60%) !important;
-            }
-            .nav-item {
-                pointer-events: none;
-                opacity: 0;
-            }
-        }
-    }
-
-    @media only screen and (max-width: 700px) {
-        .layout {
-            grid-template-rows: 5rem auto;
-            grid-template-columns: 1;
-            grid-template-areas: "nav" "main";
-
-            .nav {
-                flex-direction: row;
-                align-items: center;
-                justify-content: center;
-
-                .nav-item {
-                    margin: 0 0.3rem 0 0.3rem;
-                }
-
-                .toggle {
-                    top: 100%;
-                    right: 1rem;
-                    transform: translateY(-25%);
-                    border-radius: 0 0 1rem 1rem;
-                }
-            }
-            .main {
-                padding: 0.5rem;
-                align-items: left;
-            }
-        }
-
-        .hide-nav {
-            grid-template-rows: 0 auto;
-
-            .toggle {
-                transform: translateY(-40%) !important;
             }
             .nav-item {
                 pointer-events: none;

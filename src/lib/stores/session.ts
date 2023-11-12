@@ -6,6 +6,8 @@ const store = () => {
         displayName: '',
         accessToken: '',
         uid: '',
+        admin: false,
+        loggedIn: false,
     }
 
     const { subscribe, update } = writable(state);

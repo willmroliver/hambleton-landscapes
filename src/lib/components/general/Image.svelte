@@ -1,5 +1,5 @@
 <script lang="ts">
-    export const fit: string = 'cover';
+    export let fit: string = 'cover';
     export let height: string|number;
 </script>
 
@@ -21,5 +21,9 @@
     }
     .cover {
         object-fit: cover;
+    }
+
+    img {
+        max-width: 100vw;
     }
 </style>
