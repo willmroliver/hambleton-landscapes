@@ -1,9 +1,9 @@
 {
-	"name": "skeleton-project",
+	"name": "hambleton-landscapes",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev --host local.firebaseapp.com --port 8000",
+		"dev": "vite dev --host localhost --port 8000",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

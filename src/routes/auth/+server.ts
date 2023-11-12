@@ -5,8 +5,8 @@ import UserRepo from "$lib/repos/users.js"
 const repo = new UserRepo()
 
 /** @type {import('./$types').RequestHandler} */
-export async function GET({ cookies }) {
-    const token: string|undefined = cookies.get('idtoken');
+export async function POST({ request }) {
+    const { token } = await request.json()
 
     if (!token) return json(
         { message: 'Missing/Invalid Token' }, 
@@ -16,7 +16,7 @@ export async function GET({ cookies }) {
     const claims = await auth.verifyIdToken(token)
     const user = await repo.get(claims.uid)
 
-    auth.setCustomUserClaims(claims.uid, {
+    await auth.setCustomUserClaims(claims.sub, {
         admin: user.admin,
     })
 

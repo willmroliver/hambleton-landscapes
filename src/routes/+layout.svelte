@@ -1,16 +1,26 @@
 <script lang="ts">
     import session from "$lib/stores/session"
     import UUID from "$lib/modules/utils/uuid"
-    import HTTP from "$lib/services/http";
     import { signIn, getResult } from "$lib/modules/auth/google"
 
 	import { onMount } from "svelte"
-    import { goto } from "$app/navigation";
+    import { goto } from "$app/navigation"
 
-    const http = new HTTP()
+    onMount(async () => {
+        layout = document.getElementById(navId)!
+        toggle = document.getElementById(toggleId)!
+        
+        getResult()
+    })
+
+    const navItems: Array<any> = [
+        { name: 'Home', goto: '/' },
+        { name: 'Login', cb: signIn },
+        { name: 'Admin', goto: '/admin', admin: true },
+    ]
 
     const navId = new UUID().id
-    const toggleId = new UUID().id;
+    const toggleId = new UUID().id
 
     let showNav = false
     let layout: HTMLElement
@@ -18,12 +28,7 @@
 
     const toggleNav = () => {
         showNav = !showNav
-
-        if (showNav) {
-            layout.classList.remove('hide-nav')
-        } else {
-            layout.classList.add('hide-nav')
-        }
+        layout.classList[showNav ? 'remove' : 'add']('hide-nav')
     }
 
     const navTo = (item: any) => {
@@ -32,26 +37,6 @@
 
         toggleNav()
     }
-
-    onMount(async () => {
-        layout = document.getElementById(navId)!
-        toggle = document.getElementById(toggleId)!
-
-        if (await getResult()) {
-            const res = await http.get('/auth')
-            if (res.status !== 200) return
-
-            session.set({
-                ...res.body.user,
-            })
-        }
-    })
-
-    const navItems: Array<any> = [
-        { name: 'Home', goto: '/' },
-        { name: 'About', goto: '/' },
-        { name: 'Login', cb: signIn },
-    ]
 </script>
 
 <div id={navId} class="layout hide-nav">
@@ -65,7 +50,8 @@
             role="button"
             aria-label="Toggle Navigation Bar Visibility"
         />
-        {#each navItems as item}
+
+        {#each navItems.filter(item => !item.admin || $session.admin) as item}
             <div 
                 class="nav-item" 
                 on:click={() => navTo(item)} 
@@ -80,9 +66,9 @@
     </div>
 
     <div class="main">
-        {#if $session.uid}
+        {#if $session.loggedIn}
         <div class="profile light">
-            <span>Hello, {$session}</span>
+            <span>Hello, {$session.admin ? 'Admin' : $session.displayName.split(' ')[0]}</span>
         </div>
         {/if}
 

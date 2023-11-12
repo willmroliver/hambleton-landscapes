@@ -1,11 +1,5 @@
 <script lang="ts">
-    import Button from "$lib/components/inputs/Button.svelte"
-	import Checkbox from "$lib/components/inputs/Checkbox.svelte"
-	import TextArea from "$lib/components/inputs/TextArea.svelte"
-    import TextInput from "$lib/components/inputs/TextInput.svelte"
-    
     import Image from "$lib/components/general/Image.svelte"
-    import ImageUpload from "$lib/components/inputs/ImageUpload.svelte"
 </script>
 
 <Image src="logo-primary.svg" alt="logo" height={300} fit="fill" style="padding: 1rem 0;" />
@@ -14,7 +8,7 @@
     <h2>Bespoke Landscaping Services</h2>
     <p>
         With a combined experience of more than 50 years, we bring new life to gardens across North Yorkshire.
-        From plant to patio, in city gardens and open acres, a service you can trust to deliver.
+        From plant to patio, in city gardens and open acres, we offer a service you can trust to deliver.
     </p>
 </div>
 

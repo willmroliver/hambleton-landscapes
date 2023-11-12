@@ -3,11 +3,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read, write: if request.auth && request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId;
     }
     match /{document=**} {
       allow read;
       allow write: if false;
+    }
+    match /admin/{document=**} {
+      allow read;
+      allow write: if request.auth.token.admin == true;
     }
   }
 }

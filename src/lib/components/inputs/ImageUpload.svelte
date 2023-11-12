@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte"
     import UUID from "$lib/modules/utils/uuid"
     import { upload } from "$lib/modules/storage/cloud"
     import session from "$lib/stores/session"
@@ -13,14 +12,13 @@
     export let label: string = 'Select an image'
     export let theme: string = 'dark'
 
-    export let saveImage = (f: File|Blob|null) => {
+    export let saveImage = async (f: File|Blob|null) => {
         if (!f || !$session.uid) return
 
-        upload(`user/${$session.uid}/images`, f as File)
+        await upload(`user/${$session.uid}/images`, f as File)
     }
 
     const id: string = new UUID().id
-    const dispatch = createEventDispatcher()
 
     let file: File|Blob|null = null
     let url: string = ''
@@ -39,6 +37,11 @@
     const resetInput = () => {
         file = null
         url = ''
+    }
+
+    const saveAndReset = async (f: File|Blob|null) => {
+        await saveImage(f)
+        resetInput()
     }
 </script>
 
@@ -60,7 +63,7 @@
             <Button 
                 theme="dark" 
                 class="image-upload-options"
-                on:click={() => saveImage(file)}
+                on:click={() => saveAndReset(file)}
             >
                 Save
             </Button>

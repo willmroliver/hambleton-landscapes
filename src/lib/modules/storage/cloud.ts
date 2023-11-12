@@ -7,7 +7,7 @@ const upload = async (path: string, file: File) => {
 
     const snapshot = await uploadBytes(ref, file)
 
-    console.log('success:', snapshot)
+    return snapshot
 }
 
 export {

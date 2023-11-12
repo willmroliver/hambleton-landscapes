@@ -1,10 +1,10 @@
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth"
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "firebase/auth"
 import { auth } from "$lib/firebase/app"
 import session from "$lib/stores/session"
-import UserRepo from "$lib/repos/users"
+import HTTP from "$lib/services/http"
 
 const provider = new GoogleAuthProvider()
-const userRepo = new UserRepo()
+const http = new HTTP()
 
 async function signIn() {
     try {
@@ -16,20 +16,30 @@ async function signIn() {
 
 async function getResult(): Promise<boolean> {
     try {
-        const res = await getRedirectResult(auth)
+        let res: any = await getRedirectResult(auth)
         if (!res) return false
 
         const user = res.user
         const credential = GoogleAuthProvider.credentialFromResult(res)
         const accessToken = credential!.accessToken
 
-        const idToken = await auth.currentUser?.getIdToken(true)
+        const idToken = await auth.currentUser!.getIdToken(true)
+
+        res = await http.post('/auth', {
+            token: idToken,
+        })
+
+        if (res.status !== 200) return false
 
         session.set({
-            ...user,
+            ...res.body.user,
+            uid: user.uid,
             idToken,
             accessToken,
+            loggedIn: true,
         })
+
+        await refreshToken()
 
         return true
     } catch (err) {
@@ -39,7 +49,12 @@ async function getResult(): Promise<boolean> {
     return false;
 }
 
+async function refreshToken() {
+    await auth.currentUser!.getIdToken(true)
+}
+
 export {
     signIn,
     getResult,
+    refreshToken,
 }
