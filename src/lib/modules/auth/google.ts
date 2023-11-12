@@ -1,5 +1,5 @@
 import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth"
-import { auth } from "$lib/services/firebase/app"
+import { auth } from "$lib/firebase/app"
 import session from "$lib/stores/session"
 import UserRepo from "$lib/repos/users"
 
@@ -14,26 +14,29 @@ async function signIn() {
     }
 }
 
-async function getResult() {
+async function getResult(): Promise<boolean> {
     try {
         const res = await getRedirectResult(auth)
-        if (!res) return
+        if (!res) return false
 
         const user = res.user
         const credential = GoogleAuthProvider.credentialFromResult(res)
-        const token = credential!.accessToken
+        const accessToken = credential!.accessToken
 
-        const doc = await userRepo.get(user.uid)
+        const idToken = await auth.currentUser?.getIdToken(true)
 
         session.set({
             ...user,
-            admin: doc.admin,
-            credential,
-            token,
+            idToken,
+            accessToken,
         })
+
+        return true
     } catch (err) {
         console.error(err)
     }
+
+    return false;
 }
 
 export {

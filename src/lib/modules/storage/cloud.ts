@@ -1,4 +1,4 @@
-import { storage, storageRef } from "$lib/services/firebase/app";
+import { storage, storageRef } from "$lib/firebase/app";
 import { uploadBytes } from "firebase/storage";
 
 const upload = async (path: string, file: File) => {

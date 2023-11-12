@@ -1,10 +1,13 @@
 <script lang="ts">
     import session from "$lib/stores/session"
     import UUID from "$lib/modules/utils/uuid"
+    import HTTP from "$lib/services/http";
     import { signIn, getResult } from "$lib/modules/auth/google"
 
 	import { onMount } from "svelte"
     import { goto } from "$app/navigation";
+
+    const http = new HTTP()
 
     const navId = new UUID().id
     const toggleId = new UUID().id;
@@ -30,11 +33,18 @@
         toggleNav()
     }
 
-    onMount(() => {
+    onMount(async () => {
         layout = document.getElementById(navId)!
         toggle = document.getElementById(toggleId)!
 
-        getResult()
+        if (await getResult()) {
+            const res = await http.get('/auth')
+            if (res.status !== 200) return
+
+            session.set({
+                ...res.body.user,
+            })
+        }
     })
 
     const navItems: Array<any> = [
@@ -72,7 +82,7 @@
     <div class="main">
         {#if $session.uid}
         <div class="profile light">
-            <span>Hello, {$session.admin ? 'Admin' : $session.displayName.split(' ')[0]}</span>
+            <span>Hello, {$session}</span>
         </div>
         {/if}
 

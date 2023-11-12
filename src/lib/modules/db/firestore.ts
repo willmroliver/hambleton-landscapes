@@ -1,4 +1,4 @@
-import { db } from "$lib/services/firebase/app"
+import { db } from "$lib/firebase/app"
 import { collection, doc, addDoc, setDoc, getDoc, getDocs } from "firebase/firestore"
 
 const write = async (to: string, data: any) => {

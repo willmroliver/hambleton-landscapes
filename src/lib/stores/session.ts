@@ -4,8 +4,9 @@ const store = () => {
     const state = {
         email: '',
         displayName: '',
-        accessToken: '',
         uid: '',
+        idToken: '',
+        accessToken: '',
         admin: false,
         loggedIn: false,
     }
