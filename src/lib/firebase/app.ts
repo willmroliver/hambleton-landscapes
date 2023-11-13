@@ -23,14 +23,9 @@ const db = getFirestore(app)
 
 auth.useDeviceLanguage()
 
-const storageRef = (path: string) => {
-    return ref(storage, path)
-}
-
 export {
     app,
     auth,
     storage,
-    storageRef,
     db,
 }

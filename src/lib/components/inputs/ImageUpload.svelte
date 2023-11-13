@@ -1,6 +1,6 @@
 <script lang="ts">
     import UUID from "$lib/modules/utils/uuid"
-    import { upload } from "$lib/modules/storage/cloud"
+    import { upload } from "$lib/modules/storage/storage"
     import session from "$lib/stores/session"
 
     import Image from "$lib/components/general/Image.svelte"
