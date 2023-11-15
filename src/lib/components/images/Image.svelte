@@ -3,16 +3,15 @@
     export let height: string|number;
 </script>
 
-<div class={$$restProps.class || ''} style={$$restProps.style || ''}>
-    <img 
-        src={$$restProps.src} 
-        alt={$$restProps.alt} 
-        class={`${fit}`}
-        {height}
-    />
-</div>
+<img 
+    src={$$restProps.src} 
+    alt={$$restProps.alt} 
+    class={`${fit} ${$$restProps.class || ''}`}
+    {height}
+    style="max-width: 100vw"
+/>
 
-<style>
+<style lang="scss">
     .fill {
         object-fit: fill;
     }
@@ -21,9 +20,5 @@
     }
     .cover {
         object-fit: cover;
-    }
-
-    img {
-        max-width: 100vw;
     }
 </style>

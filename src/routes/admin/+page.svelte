@@ -1,45 +1,56 @@
 <script lang="ts">
     import ImageUpload from "$lib/components/inputs/ImageUpload.svelte"
-    import Image from "$lib/components/general/Image.svelte"
+    import ImageCarousel from "$lib/components/images/ImageCarousel.svelte"
 
-    import session from "$lib/stores/session"
-    import { upload } from "$lib/modules/storage/storage"
-    import { list } from "$lib/modules/storage/image"
+    import Button from "$lib/components/inputs/Button.svelte"
+    import TextInput from "$lib/components/inputs/TextInput.svelte"
+    import TextArea from "$lib/components/inputs/TextArea.svelte"
+
+    import { Image, ImageRepo } from "$lib/repos/images"
+    import { Gallery, GalleryRepo } from "$lib/repos/galleries"
 	import { onMount } from "svelte";
 
-    let success = false
+    let galleryRepo = new GalleryRepo()
+    let galleries: Gallery[] = []
 
-    let images: string[] = []
+    let title: string = ''
+    let body: string = ''
+    
+    const createNewGallery = () => {
+        galleries = [...galleries, new Gallery(title, body)]
+        galleryRepo.write(galleries[galleries.length-1])
 
-    const saveImage = async (file: File|Blob|null) => {
-        try {
-            if (!file || !$session.uid) return
-            const res = await upload('admin/images', file as File)
-
-            console.log(res)
-            success = true
-        } catch (err) {
-            console.error(err)
-        }
+        title = ''
+        body = ''
     }
 
     onMount(async () => {
-        const { urls, next } = await list('admin/images')
-        images = urls
+        let _galleries = await galleryRepo.list()
+        for (const g of _galleries) await g.loadImages()
+        galleries = _galleries
     })
 </script>
 
-<ImageUpload theme="secondary" height={300} {saveImage} class="upload" />
+{#each galleries as gallery}
+    <h2>{gallery.title}</h2>
+    <ImageUpload 
+        saveImage={async (f) => {gallery.saveImage(f)}} 
+        theme="secondary" 
+        label="Add images"
+        height={100}
+        multiple={true}
+    />
 
-{#each images as src}
-    <Image {src} height={200} class="image" />
+    <ImageCarousel urls={gallery.images.map(image => image.url)} height={100} />
+    <p>{gallery.body}</p>
 {/each}
 
-{#if success}
-<div>
-    Your image has been saved to the cloud.
-</div>
-{/if}
+<form>
+    <TextInput label="title" bind:value={title} />
+    <TextArea label="body" bind:value={body} />
+    <Button theme="primary" on:click={createNewGallery}>New Gallery</Button>
+</form>
+
 
 <style lang="scss">
     :global(.upload) {
@@ -50,7 +61,16 @@
         margin-top: 2rem;
     }
 
-    div {
+    form {
+        display: flex;
+        flex-direction: column;
+
+        gap: 1rem;
         margin-top: 2rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+        margin: 1rem 0;
     }
 </style>

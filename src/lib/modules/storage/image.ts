@@ -1,5 +1,10 @@
 import { getDownloadURL } from "firebase/storage"
-import { list as _list, ref } from "./storage"
+import { Image } from "$lib/repos/images"
+import { 
+    list as _list, 
+    upload as _upload,
+    ref,  
+} from "./storage"
 
 const list = async (path: string, from: string|undefined = undefined) => {
     const { items, next } = await _list(path, from)
@@ -17,6 +22,13 @@ const list = async (path: string, from: string|undefined = undefined) => {
     }
 } 
 
+const upload = async (path: string, file: File): Promise<Image> => {
+    const res = await _upload(path, file)
+    const url = await getDownloadURL(res.ref)
+    return new Image(res.ref.name, url, res.ref.fullPath)
+} 
+
 export {
     list,
+    upload,
 }

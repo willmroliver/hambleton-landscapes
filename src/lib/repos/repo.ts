@@ -1,20 +1,22 @@
 import db from "$lib/modules/db/firestore"
 
 class Repo {
-    private collection: string
+    private path: string
+    private pathSegments: string[]
 
-    public constructor(collection: string) {
-        this.collection = collection
+    public constructor(path: string, ...pathSegments: string[]) {
+        this.path = path
+        this.pathSegments = pathSegments
     }
 
     public async get(id: string): Promise<any> {
-        const snap = await db.get(this.collection, id)
+        const snap = await db.get(id, this.path, ...this.pathSegments)
         if (snap.exists()) return snap.data()
         else return null
     }
 
     public async list(): Promise<Array<any>> {
-        const snap = await db.list(this.collection)
+        const snap = await db.list(this.path, ...this.pathSegments)
         
         const results: any[] = []
         snap.forEach(doc => {
@@ -27,12 +29,13 @@ class Repo {
         return results
     }
 
-    public async write(data: any) {
-        return await db.write(this.collection, data)
+    public async write(data: any, id?: string) {
+        if (id) return await db.update(id, data, this.path, ...this.pathSegments)
+        return await db.write(data, this.path, ...this.pathSegments)
     }
 
     public async update(id: string, data: any) {
-        return await db.update(this.collection, id, data)
+        return await db.update(id, data, this.path, ...this.pathSegments)
     }
 }
 

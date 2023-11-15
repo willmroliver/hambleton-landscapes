@@ -1,4 +1,6 @@
 <script lang="ts">
+    import NavIcon from "$lib/components/svg/NavIcon.svelte"
+
     import session from "$lib/stores/session"
     import UUID from "$lib/modules/utils/uuid"
     import { signIn, getResult } from "$lib/modules/auth/google"
@@ -8,15 +10,15 @@
 
     onMount(async () => {
         layout = document.getElementById(navId)!
-        toggle = document.getElementById(toggleId)!
-        
         getResult()
     })
 
-    const navItems: Array<any> = [
-        { name: 'Home', goto: '/' },
+    const navItems: any[] = [
+        { name: 'Home', goto: '/', admin: true },
+        { name: 'Contact Us', href: 'contact-us'},
         { name: 'Login', cb: signIn },
         { name: 'Admin', goto: '/admin', admin: true },
+       
     ]
 
     const navId = new UUID().id
@@ -24,7 +26,6 @@
 
     let showNav = false
     let layout: HTMLElement
-    let toggle: HTMLElement
 
     const toggleNav = () => {
         showNav = !showNav
@@ -41,27 +42,30 @@
 
 <div id={navId} class="layout hide-nav">
     <div class="nav">
-        <div 
-            id={toggleId} 
-            class="toggle" 
-            on:click={toggleNav}
-            on:keyup={toggleNav}
-            tabindex="0"
-            role="button"
-            aria-label="Toggle Navigation Bar Visibility"
-        />
+        <div class="nav-toggle">
+            <NavIcon 
+                id={toggleId}
+                height={48}
+                open={!showNav}
+                on:click={toggleNav}
+            />
+        </div>
 
         {#each navItems.filter(item => !item.admin || $session.admin) as item}
-            <div 
-                class="nav-item" 
-                on:click={() => navTo(item)} 
-                on:keyup={() => navTo(item)}
-                tabindex="0"
-                role="button"
-                aria-label={`Navigate to ${item.name}`}
-            >
-                {item.name}
-            </div>
+            {#if !item.href}
+                <div 
+                    class="nav-item" 
+                    on:click={() => navTo(item)} 
+                    on:keyup={() => navTo(item)}
+                    tabindex="0"
+                    role="button"
+                    aria-label={`Navigate to ${item.name}`}
+                >
+                    {item.name}
+                </div>
+            {:else} 
+                <a class="nav-item" href={`#${item.href}`}>{item.name}</a>
+            {/if}
         {/each}
     </div>
 
@@ -79,6 +83,7 @@
 <style global lang="scss">
     @import "$lib/styles/breakpoints.scss";
     @import "$lib/styles/themes.scss";
+    @import "$lib/styles/animation.scss";
 
     :global(html) {
         background-color: $background;
@@ -97,11 +102,9 @@
         grid-template-areas: "nav" "main";
 
         position: relative;
-
-        color: $primary;
         font-family: 'Quicksand', sans-serif;
 
-        transition: all 200ms ease;
+        transition: all $navbar-ms ease;
 
         .main {            
             grid-area: main;
@@ -111,6 +114,9 @@
 
             overflow: hidden;
             overflow-y: scroll;
+            scroll-behavior: smooth;
+
+            padding-bottom: 6rem;
 
             .profile {
                 border-radius: 0.25rem;
@@ -142,32 +148,23 @@
             align-items: center;
             justify-content: center;
 
-            background-color: $dark;
-            box-shadow: 0 0 100px 0 rgba(0,0,0,0.5);
+            box-shadow: 0 0 2rem 0 rgba(0,0,0,0.1);
             
-            .toggle {
+            .nav-toggle {
                 position: absolute;
-                top: 100%;
+                top: 1rem;
                 right: 1rem;
-                transform: translateY(-25%);
-                border-radius: 0 0 1rem 1rem;
-
-                width: 2rem;
-                height: 2rem;
-                background-color: $light;
-
-                transition: transform 800ms ease;
                 cursor: pointer;
             }
 
             .nav-item {
-                color: $white;
+                position: relative;
+
                 padding: 0.6rem;
-                border: 0.1rem solid $white;
                 white-space: nowrap;
                 cursor: pointer;
 
-                transition: all 200ms ease;
+                transition: all $navbar-ms ease;
 
                 margin: 0 0.3rem 0 0.3rem;
             }
@@ -176,54 +173,9 @@
     .hide-nav {
         grid-template-rows: 0 auto;
 
-        .toggle {
-            transform: translateY(-40%) !important;
-        }
         .nav-item {
             pointer-events: none;
             opacity: 0;
-        }
-    }
-
-    @include md {
-        .layout {
-            grid-template-columns: 10rem auto;
-            grid-template-rows: auto;
-            grid-template-areas: "nav main";
-
-            .nav {
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: center;
-                
-                .nav-item {
-                    margin: 0 0.6rem 0.6rem 0.6rem;
-                    text-align: center;
-                }
-                
-                .toggle {
-                    top: 1rem;
-                    right: 0;
-                    transform: translateX(75%);
-                    border-radius: 0 1rem 1rem 0;
-                }
-            }
-            .main {
-                .profile {
-                    margin: 0.5rem auto 0 auto;
-                }
-            }
-        }
-        .hide-nav {
-            grid-template-columns: 0 auto;
-
-            .toggle {
-                transform: translateX(60%) !important;
-            }
-            .nav-item {
-                pointer-events: none;
-                opacity: 0;
-            }
         }
     }
 </style>

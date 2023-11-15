@@ -18,6 +18,7 @@
     {type} 
     class={$$restProps.class || ''} 
     style={$$restProps.style || ''}
+    form={$$restProps.form}
     on:click
 >
     <slot />

@@ -43,6 +43,8 @@
         on:focus={shiftLabel} 
         on:blur={unshiftLabel} 
         on:input={updateValue} 
+        name={$$restProps.name}
+        form={$$restProps.form}
     />
 </div>
 
