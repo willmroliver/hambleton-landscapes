@@ -14,6 +14,7 @@
     export let preview: boolean = true
     export let label: string = `Select ${multiple ? 'images' : 'an image'}`
     export let theme: string = 'dark'
+    export let saveTheme: string = 'dark'
 
     let file: File|Blob|null = null
     let files: FileList|null = null
@@ -79,6 +80,8 @@
         else await saveImage(file)
 
         resetInput()
+
+        dispatch('uploaded')
     }
 </script>
 
@@ -101,7 +104,7 @@
         <slot>
             <span>
                 <Button 
-                    theme="dark" 
+                    theme={saveTheme} 
                     class="image-upload-options"
                     on:click={saveAndReset}
                 >

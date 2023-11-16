@@ -21,7 +21,10 @@
     let selectedGallery: Gallery|null = null
     let selectedImage: ImageClass|null = null
 
-    onMount(async () => {
+    let title: string = ''
+    let body: string = ''
+    
+    const loadGalleries = async () => {
         let _galleries = await galleryRepo.list()
 
         for (const g of _galleries) {
@@ -30,19 +33,18 @@
         }
 
         galleries = _galleries
-    })
+    }
 
-    let title: string = ''
-    let body: string = ''
-    
-    const createNewGallery = () => {
+    const createNewGallery = async () => {
         if (!title) return
 
         galleries = [...galleries, new Gallery(title, body)]
-        galleryRepo.write(galleries[galleries.length-1])
+        await galleryRepo.write(galleries[galleries.length-1])
 
         title = ''
         body = ''
+
+        await loadGalleries()
     }
 
     const showRemoveDialog = (gallery: Gallery, image: ImageClass) => {
@@ -54,14 +56,7 @@
     const removeImage = async () => {
         try {
             await imageRepo!.remove(selectedImage!)
-
-            const _galleries = galleries
-            _galleries.forEach(g => {
-                if (g.title !== selectedGallery!.title) return
-                g.images = g.images.filter(image => `${image.path}/${image.name}` !== `${selectedImage!.path}/${selectedImage!.name}`)
-            })
-
-            galleries = [..._galleries]
+            await loadGalleries()
         } catch (err) {
             console.error(err)
         } finally {
@@ -70,6 +65,8 @@
             selectedImage = null
         }
     }
+
+    onMount(loadGalleries)
 </script>
 
 {#each galleries as gallery, i}
@@ -82,13 +79,15 @@
                 theme={i % 2 ? 'light' : 'dark'} 
             />
             <ImageUpload 
-                saveImage={async (f) => {gallery.saveImage(f)}} 
+                saveImage={async (f) => { await gallery.saveImage(f) }} 
                 label="Add images"
                 theme="secondary" 
+                saveTheme={i % 2 ? 'light' : 'dark'}
                 height={100}
                 multiple={true}
                 preview={false}
                 on:select={(event) => galleryPreviews[gallery.title] = event.detail.urls}
+                on:uploaded={loadGalleries}
                 on:reset={() => galleryPreviews[gallery.title] = []}
             />
         </div>
@@ -148,23 +147,15 @@
     @import "$lib/styles/themes.scss";
     @import "$lib/styles/breakpoints.scss";
 
-    :global(.upload) {
-        margin-top: 2rem;
-    }
-
-    :global(.image) {
-        margin-top: 2rem;
-    }
-
-    :global(img), :global(button) {
-        border-radius: 0.25rem;
-        box-shadow: 2px 2px 10px 0 rgba(0,0,0,0.2);
-    }
-
     .wrapper {
         width: 100%;
         padding: 2rem;
         z-index: 1;
+
+        :global(img), :global(button) {
+            border-radius: 0.25rem;
+            box-shadow: 2px 2px 10px 0 rgba(0,0,0,0.2);
+        }
     }
     .wrapper:first-of-type {
         padding-top: 5rem;

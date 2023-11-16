@@ -20,9 +20,11 @@ class Gallery {
         if (!f) return
 
         const image = await upload('admin/images', f as File)
-        this.imageRepo.write(image)
+        await this.imageRepo.write(image)
 
         this.images.push(image)
+
+        return image
     }
 
     public async loadImages() {
