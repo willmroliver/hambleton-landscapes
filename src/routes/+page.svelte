@@ -47,7 +47,7 @@
     />
 </div>
 
-<section class="primary">
+<section class="dark">
     <h2>Bespoke Landscaping Services</h2>
     <p>
         With a combined experience of more than 50 years, we bring new life to gardens across North Yorkshire.
@@ -55,6 +55,7 @@
     </p>
 
     <div id="contact-us" class="contact-services-row">
+
         <div class="contact">
             <h3>Contact Us</h3>
             <form
@@ -69,10 +70,11 @@
                 <TextInput label="Subject *" bind:value={email.subject} form="form-contact-us" />
                 <TextArea label="Message" bind:value={email.body} form="form-contact-us" name="body" />
                 <Button theme="secondary" form="form-contact-us" type="submit">
-                    Open Mail<Icon name="paper-plane" style="margin-left: 0.5rem"/>
+                    Send<Icon name="paper-plane" style="margin-left: 0.5rem"/>
                 </Button>
             </form>
         </div>
+
         <div class="services">
             <h3>Our Services</h3>
             {#each services as service}
@@ -84,17 +86,17 @@
                 </a>
             {/each}
         </div>
+        
     </div>
 </section>
 
 {#each galleries.filter(g => g.images.length || g.body ) as gallery, i}
-    <section id={gallery.title} class={i % 2 ? 'light' : 'none'}>
+    <section id={gallery.title} class={`gallery ${i % 2 ? 'background' : 'white'}`}>
         <h2>{ gallery.title }</h2>
         
-        <span>
+        {#if gallery.images.length}
             <ImageCarousel urls={gallery.images.map(image => image.url)} height={200} />
-        </span>
-        
+        {/if}
 
         {#if gallery.body}
             <p>{ gallery.body }</p>
@@ -130,11 +132,11 @@
             width: fit-content;
             text-wrap: nowrap;
         }
-       
     }
 
     #contact-us {
         margin: 2rem 0;
+
         form {
             display: flex;
             flex-direction: column;
@@ -155,7 +157,7 @@
         display: flex;
         flex-direction: column;
         align-items: start;
-        gap: 2rem;
+        gap: 3rem;
 
         .contact {
             width: 100%;
@@ -172,18 +174,18 @@
         align-items: left;
 
         width: 100%;
-        padding: 1rem 2rem;
+        padding: 3rem 2rem;
 
         h2 {
-            font-size: 3rem;
+            font-size: 2.5rem;
         }
         h3 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 1.5rem;
         }
         p {
-        font-size: 1.2rem;
-            margin: 1rem 0;   
+            font-size: 1.2rem;
+            margin: 1rem 0;
         }
     }
     section > * {
@@ -196,6 +198,26 @@
 
         margin: 0 0 2rem;
     }
+    .service:last-of-type {
+        margin: 0;
+    }
+
+    .gallery {
+        p {
+            padding: 1px 0 1px 1rem;
+            border-left: 1px solid $dark;   
+        }
+        h2 {
+            margin-bottom: 1rem;
+            text-decoration: underline 0.1rem;
+            text-underline-offset: 0.2rem;
+        }
+
+        :global(img) {
+            border-radius: 0.25rem;
+            box-shadow: 5px 5px 1px 0 rgba(0,0,0,0.2);
+        }
+    }
 
     @include md {
         section {
@@ -203,7 +225,6 @@
         }
         .contact-services-row {
             flex-direction: row;
-            gap: 2rem;
 
             .contact, .service {
                 flex-grow: 1;

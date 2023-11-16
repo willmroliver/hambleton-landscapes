@@ -1,49 +1,66 @@
 <script lang="ts">
     import UUID from "$lib/modules/utils/uuid"
+    import { Theme } from '$lib/enums/theme'
+
     const id = new UUID().id
     const labelId = new UUID().id
 
     export let label: string
     export let value: string = ''
     export let rows: number = 5
+    export let theme: Theme|string = Theme.dark;
+
+    $: labelClass = `${theme}-label`
+    $: inputClass = `${theme}-input`
+    $: borderClass = `${theme}-border`
 </script>
 
-<div class={$$restProps.class || ''} style={$$restProps.style || ''}>
-    <label id={labelId} for={id}>{label}</label>
-    <textarea 
-        {id} 
-        bind:value={value} 
-        {rows} 
-        placeholder={$$restProps.placeholder}
-        name={$$restProps.name}
-        form={$$restProps.form}
-    />
+<div 
+    class={$$restProps.class || ''}
+    style={$$restProps.style || ''}
+>
+    <label id={labelId} for={id} class={labelClass}>{label}</label>
+    <div class={`${inputClass} ${borderClass}`}>
+        <textarea 
+            {id} 
+            bind:value={value} 
+            {rows} 
+            placeholder={$$restProps.placeholder}
+            name={$$restProps.name}
+            form={$$restProps.form}
+        />
+    </div>
 </div>
 
 <style lang="scss">
-    @import "$lib/styles/themes.scss";
+    @import "$lib/styles/colors.scss";
+    @import "$lib/styles/inputs.scss";
     
     div {
         display: flex;
         flex-direction: column;
 
         label {
-            margin-left: 0.6rem;
+            margin-left: $pd-in;
             transform: translateY(0.3rem);
+            width: 100%;
+            font-size: $label-fs
         }
-        textarea {
-            padding: 0.6rem;
-            font: inherit;
-            font-size: inherit;
+        div {
+            padding-top: calc($pd-in - (2 * $border-w));
+            padding-bottom: $pd-in;
 
-            background: none;
-            border: none;
-            border-left: 0.1rem solid $black;
-            border-bottom: 0.1rem solid $black;
-            border-bottom-left-radius: 0.25rem;
-        }
-        textarea:focus {
-            outline: none;
+            textarea {
+                padding: 0 $pd-in;
+                font: inherit;
+                font-size: $input-fs;
+                font-weight: 600;
+                background: none;
+                border: none;
+            }
+            textarea:focus {
+                outline: none;
+            }
         }
     }
     div > * {

@@ -29,6 +29,8 @@
 
     button {
         font-size: 1rem;
+        text-wrap: nowrap;
+        white-space: nowrap;
 
         border: none;
         border-radius: 0.25rem;

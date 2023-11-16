@@ -36,19 +36,19 @@
 
         toggleNav()
     }
+
+    $: layoutClass = `layout ${showNav ? '' : 'hide-nav'}`
 </script>
 
-<div id={navId} class="layout hide-nav">
+<div id={navId} class={layoutClass}>
     <div class="nav">
         <div class="nav-toggle">
             <NavIcon 
                 id={toggleId}
                 height={48}
-                open={!showNav}
-                on:click={toggleNav}
+                bind:open={showNav}
             />
         </div>
-
         {#each navItems.filter(item => !item.admin || $session.admin) as item}
             {#if !item.href}
                 <div 
@@ -126,7 +126,7 @@
             }
 
             :global(h1), :global(h2), :global(h3), :global(h4), :global(h5) {
-                font-family: 'Cormorant Upright', serif;
+                font-family: 'Old Standard TT', serif;
             }
         }
         .nav {
@@ -137,7 +137,14 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: center;
+
+            padding-left: 1rem;
+            justify-content: left;
+
+            @include sm {
+                padding-left: 0;
+                justify-content: center;
+            }
 
             box-shadow: 0 0 2rem 0 rgba(0,0,0,0.1);
             
@@ -145,6 +152,8 @@
                 position: absolute;
                 top: 1rem;
                 right: 1rem;
+                z-index: 10;
+
                 cursor: pointer;
             }
 

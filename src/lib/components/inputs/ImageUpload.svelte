@@ -7,11 +7,18 @@
     import ImageCarousel from "../images/ImageCarousel.svelte"
     import FileUpload from "$lib/components/inputs/FileUpload.svelte"
     import Button from "./Button.svelte"
+	import { createEventDispatcher } from "svelte";
 
-    export let height: string|number = 100
+    export let height: number = 100
     export let multiple: boolean = false
+    export let preview: boolean = true
     export let label: string = `Select ${multiple ? 'images' : 'an image'}`
     export let theme: string = 'dark'
+
+    let file: File|Blob|null = null
+    let files: FileList|null = null
+    let url: string = ''
+    let urls: string[] = []
 
     export let saveImage = async (f: File|Blob|null) => {
         if (!f || !$session.uid) return
@@ -20,18 +27,19 @@
     }
 
     const id: string = new UUID().id
-
-    let file: File|Blob|null = null
-    let files: FileList|null = null
-
-    let url: string = ''
-    let urls: string[] = []
-
+    const dispatch = createEventDispatcher()
+   
     const getReader = () => {
         const reader = new FileReader()
         reader.onloadend = () => {
             if (multiple) urls = [...urls, reader.result as string]
             else url = reader.result as string
+            dispatch('select', {
+                url,
+                file,
+                urls,
+                files,
+            })
         }
         return reader
     }
@@ -61,6 +69,7 @@
         files = null
         url = ''
         urls = []
+        dispatch('reset')
     }
 
     const saveAndReset = async () => {
@@ -74,9 +83,9 @@
 </script>
 
 <div class={$$restProps.class || ''} style={$$restProps.style || ''}>
-    {#if !multiple && url}
+    {#if !multiple && url && preview}
         <Image id={id} src={url} alt="Image Upload Preview" height={height} />
-    {:else if urls.length}
+    {:else if urls.length && preview}
         <ImageCarousel {urls} {height} />
     {/if}
     

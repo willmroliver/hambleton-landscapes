@@ -2,7 +2,8 @@ import { storage } from "$lib/firebase/app"
 import { 
     uploadBytes,
     ref as _ref, 
-    list as _list
+    list as _list,
+    deleteObject,
 } from "firebase/storage"
 
 const ref = (path: string) => {
@@ -29,8 +30,16 @@ const list = async (path: string, from: string|undefined = undefined) => {
     }
 }
 
+const remove = async (name: string, path: string) => {
+    const fullPath = `${path}/${name}`
+    const removeRef = ref(fullPath)
+
+    return await deleteObject(removeRef)
+}
+
 export {
     upload,
     list,
+    remove,
     ref,
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Theme } from "$lib/enums/theme";
     import UUID from "$lib/modules/utils/uuid"
 	import { onMount } from "svelte"
     const id: string = new UUID().id
@@ -6,7 +7,7 @@
 
     export let label: string
     export let type: string = 'text'
-
+    export let theme: Theme|string = Theme.dark
     export let value: string = ''
 
     let initialTop: string
@@ -23,19 +24,25 @@
         label.style.transform = ''
     }
 
-    const updateValue = (event: InputEvent) => {
+    const updateValue = (event: Event) => {
         value = (event.target as HTMLInputElement).value
     }
 
     onMount(() => {
         if (type !== 'password') type = 'text'
         initialTop = document.getElementById(labelId)!.style.transform
+
+        if (value) shiftLabel()
     })
+
+    $: labelClass = `${theme}-label`
+    $: inputClass = `${theme}-input`
+    $: borderClass = `${theme}-border`
 </script>
 
 
 <div class={$$restProps.class || ''} style={$$restProps.style || ''}>
-    <label id={labelId} for={id}>{label}</label>
+    <label id={labelId} for={id} class={labelClass}>{label}</label>
     <input 
         {id} 
         {type} 
@@ -45,35 +52,36 @@
         on:input={updateValue} 
         name={$$restProps.name}
         form={$$restProps.form}
+        class={`${inputClass} ${borderClass}`}
+        size={1}
     />
 </div>
 
 
 <style lang="scss">
-    @import "$lib/styles/themes.scss";
+    @import "$lib/styles/inputs.scss";
 
     div {
         display: flex;
         flex-direction: column;
         position: relative;
+        width: 100%;
     }
     label {
         position: absolute;
-        top: 0.6rem;
-        left: 0.6rem;
+        top: $pd-in;
+        left: $pd-in;
         transition: all 300ms ease;
+
+        font-size: $label-fs;
     }
     input {
-        padding: 0.6rem;
+        padding: $pd-in;
         background: none;
-
-
         border: none;
-        border-left: 0.1rem solid $black;
-        border-bottom: 0.1rem solid $black;
-        border-bottom-left-radius: 0.25rem;
-
-        font-size: 1rem;
+        font-size: $input-fs;
+        width: 100%;
+        box-sizing: border-box;
     }
     input:focus {
         outline: none;

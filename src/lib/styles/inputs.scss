@@ -1,0 +1,40 @@
+@import "./colors.scss";
+
+$border-w: 0.05rem;
+
+$radius: 0.25rem;
+$radius-sm: 0.1rem;
+$radius-lg: 0.5rem;
+
+$pd-in: 0.6rem;
+
+$label-fs: 0.9rem;
+$input-fs: 1rem;
+
+.light-border {
+    border-left: $border-w solid $light;
+    border-bottom: $border-w solid $light;
+    border-radius: $radius;
+}
+
+.light-input, .light-label {
+    color: $white;
+
+    input, textarea, label {
+        color: $white;
+    }
+}
+
+.dark-border {
+    border-left: $border-w solid $dark;
+    border-bottom: $border-w solid $dark;
+    border-radius: $radius;
+}
+
+.dark-input, .dark-label {
+    color: $black;
+
+    input, textarea, label {
+        color: $black;
+    }
+}

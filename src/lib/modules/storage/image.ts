@@ -3,6 +3,7 @@ import { Image } from "$lib/repos/images"
 import { 
     list as _list, 
     upload as _upload,
+    remove as _remove,
     ref,  
 } from "./storage"
 
@@ -28,7 +29,12 @@ const upload = async (path: string, file: File): Promise<Image> => {
     return new Image(res.ref.name, url, res.ref.fullPath)
 } 
 
+const remove = async (name: string, path: string) => {
+    return await _remove(name, path)
+}
+
 export {
     list,
     upload,
+    remove,
 }

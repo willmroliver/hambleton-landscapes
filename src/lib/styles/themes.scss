@@ -20,7 +20,15 @@
     background-color: $danger;
     color: $white;
 }
-.none {
+.none, .background {
     background-color: $background;
     color: $black;
+}
+.white {
+    background-color: $white;
+    color: $dark;
+}
+.black {
+    background-color: $black;
+    color: $light;
 }

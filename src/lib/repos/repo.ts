@@ -37,6 +37,10 @@ class Repo {
     public async update(id: string, data: any) {
         return await db.update(id, data, this.path, ...this.pathSegments)
     }
+
+    public async remove(id: string) {
+        return await db.remove(id, this.path, ...this.pathSegments)
+    }
 }
 
 export default Repo
