@@ -18,9 +18,13 @@
     }
 
     onMount(async () => {
-        let _galleries = await galleryRepo.list()
-        for (const g of _galleries) await g.loadImages()
-        galleries = _galleries
+        try {
+            let _galleries = await galleryRepo.list()
+            for (const g of _galleries) await g.loadImages()
+            galleries = _galleries
+        } catch (err) {
+            console.error('failed to fetch galleries:', err)
+        }
     })
 
     $: services = [
@@ -33,7 +37,7 @@
 <div id="home">
     <div id="contact-details">
         <a href="mailto:hambletonlandscapes@gmail.com"><Icon name="envelope" size="lg" style="margin-right: 0.5rem" />hambletonlandscapes@gmail.com</a>
-        <span><Icon name="phone" size="lg" style="margin-right: 0.5rem" /> +447935132800</span>
+        <span><Icon name="phone" size="lg" style="margin-right: 0.5rem" />+447935132800</span>
     </div>
     <Image 
         src="logo-primary.svg" 
@@ -49,10 +53,8 @@
         With a combined experience of more than 50 years, we bring new life to gardens across North Yorkshire.
         From plant to patio, in city gardens and open acres, we offer a service you can trust to deliver.
     </p>
-</section>
 
-<section id="contact-us" class="primary">
-    <div class="contact-services-row">
+    <div id="contact-us" class="contact-services-row">
         <div class="contact">
             <h3>Contact Us</h3>
             <form
@@ -119,21 +121,20 @@
         #contact-details {
             position: absolute;
             top: 1.25rem;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 1.25rem;
 
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 1rem;
 
             width: fit-content;
-            font-size: 1.2rem;
             text-wrap: nowrap;
         }
+       
     }
 
     #contact-us {
+        margin: 2rem 0;
         form {
             display: flex;
             flex-direction: column;
@@ -143,7 +144,6 @@
             color: $black;
             padding: 1.25rem 1rem 1rem;
             border-radius: 0.25rem;
-            margin-bottom: 1rem;
 
             span {
                 width: 100%;
@@ -208,6 +208,12 @@
             .contact, .service {
                 flex-grow: 1;
             }
+        }
+        #contact-details {
+            align-items: center;
+            left: 50% !important;
+            font-size: 1.2rem;
+            transform: translateX(-50%);
         }
     }
 </style>

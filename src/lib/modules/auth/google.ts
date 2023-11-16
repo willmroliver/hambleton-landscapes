@@ -1,36 +1,29 @@
 import { 
     GoogleAuthProvider, 
     signInWithRedirect, 
-    getRedirectResult, 
     onAuthStateChanged,
 } from "firebase/auth"
 
 import { auth } from "$lib/firebase/app"
 import session from "$lib/stores/session"
-import HTTP from "$lib/services/http"
+import UserRepo from "$lib/repos/users"
 
 const provider = new GoogleAuthProvider()
-const http = new HTTP()
+const userRepo = new UserRepo()
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) return
 
-    const idToken = await auth.currentUser!.getIdToken(true)
-
-    const res = await http.post('/auth', {
-        token: idToken,
-    })
-
-    if (res.status !== 200) return false
+    const idToken = await user.getIdToken()
+    const userData = await userRepo.get(user.uid)
 
     session.set({
-        ...res.body.user,
+        ...userData,
         uid: user.uid,
         idToken,
         loggedIn: true,
     })
 
-    await user.getIdToken(true)
     return true
 })
 
@@ -42,24 +35,6 @@ async function signIn() {
     }
 }
 
-async function getResult(): Promise<boolean> {
-    try {
-        const redirectRes = await getRedirectResult(auth)
-        if (!redirectRes) return false
-
-        const credential = GoogleAuthProvider.credentialFromResult(redirectRes)
-
-        session.set({ accessToken: credential?.accessToken })
-
-        return true
-    } catch (err) {
-        console.error(err)
-    }
-
-    return false;
-}
-
 export {
     signIn,
-    getResult,
 }

@@ -3,22 +3,20 @@
 
     import session from "$lib/stores/session"
     import UUID from "$lib/modules/utils/uuid"
-    import { signIn, getResult } from "$lib/modules/auth/google"
+    import { signIn } from "$lib/modules/auth/google"
 
 	import { onMount } from "svelte"
     import { goto } from "$app/navigation"
 
     onMount(async () => {
         layout = document.getElementById(navId)!
-        getResult()
     })
 
     const navItems: any[] = [
         { name: 'Home', goto: '/', admin: true },
-        { name: 'Contact Us', href: 'contact-us'},
-        { name: 'Login', cb: signIn },
+        { name: 'Contact Us', href: 'contact-us' },
+        !$session.loggedIn ? ({ name: 'Login', cb: signIn }) : undefined,
         { name: 'Admin', goto: '/admin', admin: true },
-       
     ]
 
     const navId = new UUID().id
@@ -70,12 +68,6 @@
     </div>
 
     <div class="main">
-        {#if $session.loggedIn}
-        <div class="profile light">
-            <span>Hello, {$session.admin ? 'Admin' : $session.displayName.split(' ')[0]}</span>
-        </div>
-        {/if}
-
         <slot />
     </div>
 </div>
@@ -139,7 +131,6 @@
         }
         .nav {
             grid-area: nav;
-
             position: relative;
             align-items: left;
 

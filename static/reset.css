@@ -19,13 +19,15 @@ time, mark, audio, video {
     vertical-align: baseline;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     box-sizing: border-box;
 }
 
 html, body {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow: clip;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 

@@ -6,7 +6,6 @@
     import TextInput from "$lib/components/inputs/TextInput.svelte"
     import TextArea from "$lib/components/inputs/TextArea.svelte"
 
-    import { Image, ImageRepo } from "$lib/repos/images"
     import { Gallery, GalleryRepo } from "$lib/repos/galleries"
 	import { onMount } from "svelte";
 

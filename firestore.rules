@@ -6,12 +6,12 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == userId;
     }
     match /{document=**} {
-      allow read;
+      allow read: if true;
       allow write: if false;
     }
     match /admin/{document=**} {
-      allow read;
-      allow write: if request.auth.token.admin == true;
+      allow read: if true;
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.admin == true;
     }
   }
 }

@@ -26,7 +26,7 @@
     role="button"
     aria-label="Toggle Navigation Bar Visibility"
     class={`${open ? 'open' : 'close'}`}
-    on:click={() => {dispatch('click')}}
+    on:click|stopPropagation={() => {dispatch('click')}}
     on:keyup={() => {dispatch('click')}}
 >
     <g id="menu-icon-u-bottom-bar_to">
