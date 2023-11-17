@@ -10,8 +10,10 @@ const ref = (path: string) => {
     return _ref(storage, path)
 }
 
-const upload = async (path: string, file: File) => {
-    const fullPath = `${path}/${file.name}`
+const upload = async (file: File, ...pathSegments: string[]) => {
+    pathSegments.push(file.name)
+    
+    const fullPath = pathSegments.join('/')
     const uploadRef = ref(fullPath)
 
     const snapshot = await uploadBytes(uploadRef, file)
@@ -30,11 +32,8 @@ const list = async (path: string, from: string|undefined = undefined) => {
     }
 }
 
-const remove = async (name: string, path: string) => {
-    const fullPath = `${path}/${name}`
-    const removeRef = ref(fullPath)
-
-    return await deleteObject(removeRef)
+const remove = async (path: string) => {
+    return await deleteObject(ref(path))
 }
 
 export {

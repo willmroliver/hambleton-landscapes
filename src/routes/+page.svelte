@@ -36,8 +36,8 @@
 
 <div id="home">
     <div id="contact-details">
-        <a href="mailto:hambletonlandscapes@gmail.com"><Icon name="envelope" size="lg" style="margin-right: 0.5rem" />hambletonlandscapes@gmail.com</a>
-        <span><Icon name="phone" size="lg" style="margin-right: 0.5rem" />+447935132800</span>
+        <a href="mailto:hambletonlandscapes@gmail.com"><Icon name="envelope" size="lg" append="start" />hambletonlandscapes@gmail.com</a>
+        <span><Icon name="phone" size="lg" append="start" />+447935132800</span>
     </div>
     <Image 
         src="logo-primary.svg" 
@@ -64,13 +64,13 @@
                 method="post" 
                 enctype="text/plain"
             >
-                <span><Icon name="phone" size="lg" style="margin-right: 1rem" />+447935132800</span>
+                <span><Icon name="phone" size="lg" append="start" margin="1rem" />+447935132800</span>
     
-                <span><Icon name="envelope" size="lg" style="margin-right: 1rem" />Or, send an email below</span>
+                <span><Icon name="envelope" size="lg" append="start" margin="1rem" />Or, send an email below</span>
                 <TextInput label="Subject *" bind:value={email.subject} form="form-contact-us" />
                 <TextArea label="Message" bind:value={email.body} form="form-contact-us" name="body" />
                 <Button theme="secondary" form="form-contact-us" type="submit">
-                    Send<Icon name="paper-plane" style="margin-left: 0.5rem"/>
+                    Send<Icon name="paper-plane" append="end"/>
                 </Button>
             </form>
         </div>
@@ -79,9 +79,9 @@
             <h3>Our Services</h3>
             {#each services as service}
                 <a href={`#${service.to}`} class="service">
-                    <Icon name="check" style="margin-right: 2rem"/>{ service.name }
+                    <Icon name="check" append="start" margin="2rem"/>{ service.name }
                     {#if service.link}
-                         <span style="font-size: 0.95rem;">- Click to see <Icon name="arrow-right" style="margin-left: 0.5rem" /></span>
+                         <span style="font-size: 0.95rem;">- Click to see <Icon name="arrow-right" append="end" /></span>
                     {/if}
                 </a>
             {/each}
@@ -95,7 +95,11 @@
         <h2>{ gallery.title }</h2>
         
         {#if gallery.images.length}
-            <ImageCarousel urls={gallery.images.map(image => image.url)} height={200} />
+            <ImageCarousel 
+                urls={gallery.images.map(image => image.url)} 
+                height={240} 
+                autoscroll={true}
+            />
         {/if}
 
         {#if gallery.body}
@@ -142,7 +146,7 @@
             flex-direction: column;
             gap: 2rem;
 
-            background-color: $background;
+            background-color: $white;
             color: $black;
             padding: 1.25rem 1rem 1rem;
             border-radius: 0.25rem;
@@ -188,9 +192,6 @@
             margin: 1rem 0;
         }
     }
-    section > * {
-        width: clamp(200px, 100%, 40rem);
-    }
 
     .service {
         font-size: 1.4rem;
@@ -209,8 +210,6 @@
         }
         h2 {
             margin-bottom: 1rem;
-            text-decoration: underline 0.1rem;
-            text-underline-offset: 0.2rem;
         }
 
         :global(img) {
@@ -221,7 +220,7 @@
 
     @include md {
         section {
-            align-items: center;
+            padding: 3rem calc(50% - 20rem);
         }
         .contact-services-row {
             flex-direction: row;

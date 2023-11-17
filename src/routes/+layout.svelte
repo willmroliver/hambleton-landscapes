@@ -67,9 +67,11 @@
         {/each}
     </div>
 
-    <div class="main">
+    <div id="main">
         <slot />
     </div>
+
+    <div id="teleport" />
 </div>
 
 <style global lang="scss">
@@ -98,7 +100,7 @@
 
         transition: all $navbar-ms ease;
 
-        .main {            
+        #main {            
             grid-area: main;
             display: flex;
             flex-direction: column;

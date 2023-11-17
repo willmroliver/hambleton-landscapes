@@ -36,7 +36,7 @@
 
 <label for={id}>
     <Button {theme} on:click={click}>
-        <slot>{ label }<Icon name="arrow-up-from-bracket" style="margin-left: 0.5rem" /></slot>
+        <slot>{ label }<Icon name="arrow-up-from-bracket" append="end" /></slot>
     </Button>
 </label>
 

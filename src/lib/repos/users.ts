@@ -11,8 +11,8 @@ class UserRepo {
         return await this.repo.list()
     }
 
-    public async write(data: any) {
-        return await this.repo.write(data)
+    public async create(data: any) {
+        return await this.repo.create(data)
     }
 
     public async update(id: string, data: any) {

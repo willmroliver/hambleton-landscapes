@@ -2,12 +2,14 @@ import Repo from "./repo";
 import { remove as storageRemove } from "$lib/modules/storage/image"
 
 class Image {
+    id: string|undefined
     name: string
     path: string
     url: string
     description: string
 
-    public constructor(name: string, url: string, path: string, description: string = '') {
+    public constructor(id: string|undefined, name: string, url: string, path: string, description: string = '') {
+        this.id = id
         this.name = name
         this.url = url
         this.path = path
@@ -18,8 +20,8 @@ class Image {
 class ImageRepo {
     private repo: Repo
 
-    public constructor(gallery: string) {
-        this.repo = new Repo('admin', 'all', 'galleries', gallery, 'images')
+    public constructor(galleryId: string) {
+        this.repo = new Repo('admin', 'all', 'galleries', galleryId, 'images')
     }
 
     public async get(id: string) {
@@ -30,31 +32,36 @@ class ImageRepo {
         return (await this.repo.list()).map(data => this.image(data))
     }
 
-    public async write(image: Image) {
-        return await this.repo.write(this.data(image), image.name)
+    public async create(image: Image) {
+        return await this.repo.create(this.data(image))
     }
 
-    public async update(id: string, image: Image) {
-        return await this.repo.update(id, this.data(image))
+    public async update(image: Image) {
+        if (!image.id) return
+        return await this.repo.update(image.id, this.data(image))
     }
 
     public async remove(image: Image) {
+        if (!image.id) return
+
         return await Promise.all([
-            this.repo.remove(image.name), 
-            storageRemove(image.name, '/admin/images')]
+            this.repo.remove(image.id), 
+            storageRemove(image.path)]
         )
     }
 
     private data(image: Image) {
-        return {
+        const _data = {
             name: image.name,
             url: image.url,
             path: image.path,
         }
+
+        return  _data
     }
 
     private image(data: any) {
-        return new Image(data.id, data.url, data.path, data.description)
+        return new Image(data.id, data.name, data.url, data.path, data.description)
     }
 }
 

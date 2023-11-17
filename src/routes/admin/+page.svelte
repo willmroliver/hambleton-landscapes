@@ -1,7 +1,9 @@
 <script lang="ts">
-    import ImageUpload from "$lib/components/inputs/ImageUpload.svelte"
+    import ImageUpload from "$lib/components/images/ImageUpload.svelte"
     import ImageCarousel from "$lib/components/images/ImageCarousel.svelte"
-
+    import Image from "$lib/components/images/Image.svelte"
+	import Icon from "$lib/components/general/Icon.svelte"
+	import Modal from "$lib/components/general/Modal.svelte"
     import Button from "$lib/components/inputs/Button.svelte"
     import TextInput from "$lib/components/inputs/TextInput.svelte"
     import TextArea from "$lib/components/inputs/TextArea.svelte"
@@ -10,50 +12,92 @@
     import { Image as ImageClass, ImageRepo } from "$lib/repos/images"
 
 	import { onMount } from "svelte"
-	import Image from "$lib/components/images/Image.svelte";
-	import Icon from "$lib/components/general/Icon.svelte";
+
 
     let galleryRepo = new GalleryRepo()
     let galleries: Gallery[] = []
     let galleryPreviews: any = {}
+    let selectedGallery: Gallery|null = null
 
     let imageRepo: ImageRepo|null = null
-    let selectedGallery: Gallery|null = null
     let selectedImage: ImageClass|null = null
 
     let title: string = ''
     let body: string = ''
+
+    let loading: boolean = true
+    let submitting: boolean = false
     
     const loadGalleries = async () => {
-        let _galleries = await galleryRepo.list()
+        try {
+            let _galleries = await galleryRepo.list()
 
-        for (const g of _galleries) {
-            await g.loadImages()
-            galleryPreviews[g.title] = []
+            for (const g of _galleries) {
+                await g.loadImages()
+                galleryPreviews[g.title] = []
+            }
+            galleries = _galleries
+        } catch (err) {
+            console.error(err)
         }
-
-        galleries = _galleries
     }
 
     const createNewGallery = async () => {
-        if (!title) return
+        if (submitting) return
+        submitting = true
 
-        galleries = [...galleries, new Gallery(title, body)]
-        await galleryRepo.write(galleries[galleries.length-1])
+        try {
+            const gallery = await galleryRepo.create(new Gallery('', title, body))
+            galleries = [...galleries, gallery]
 
-        title = ''
-        body = ''
+            title = ''
+            body = ''
+        } catch(err) {
+            console.error(err)
+        } finally {
+            submitting = false
+        }
+    }
 
-        await loadGalleries()
+    const updateGallery = async (gallery: Gallery) => {
+        if (submitting) return
+        submitting = true
+
+        try {
+            await galleryRepo.update(gallery)
+        } catch(err) {
+            console.error(err)
+        } finally {
+            submitting = false
+        }
+    }
+
+    const deleteGallery = async () => {
+        if (!selectedGallery || submitting) return
+        submitting = true
+
+        try {
+            await galleryRepo.remove(selectedGallery)
+            await loadGalleries()
+        } catch (err) {
+            console.error(err)
+        } finally {
+            submitting = false
+            selectedGallery = null
+        }
     }
 
     const showRemoveDialog = (gallery: Gallery, image: ImageClass) => {
-        imageRepo = new ImageRepo(gallery.title)
-        selectedGallery = gallery
+        if (!gallery.id) return
+        
+        imageRepo = new ImageRepo(gallery.id)
         selectedImage = image
     }
 
     const removeImage = async () => {
+        if (submitting) return
+        submitting = true
+
         try {
             await imageRepo!.remove(selectedImage!)
             await loadGalleries()
@@ -61,16 +105,19 @@
             console.error(err)
         } finally {
             imageRepo = null
-            selectedGallery = null
             selectedImage = null
+            submitting = false
         }
     }
 
-    onMount(loadGalleries)
+    onMount(async () => {
+        await loadGalleries()
+        loading = false
+    })
 </script>
 
 {#each galleries as gallery, i}
-<div class={`${i % 2 ? 'dark' : 'light'} wrapper`}>
+<div class={`${i % 2 ? 'dark' : 'background'} ${i == galleries.length - 1 ? 'end' : ''} wrapper`}>
     <section>
         <div class="header">
             <TextInput 
@@ -87,21 +134,24 @@
                 multiple={true}
                 preview={false}
                 on:select={(event) => galleryPreviews[gallery.title] = event.detail.urls}
-                on:uploaded={loadGalleries}
+                on:uploadend={loadGalleries}
                 on:reset={() => galleryPreviews[gallery.title] = []}
             />
         </div>
 
-        {#if galleryPreviews[gallery.title].length}
-            <ImageCarousel urls={galleryPreviews[gallery.title]} height={100} />
+        {#if 
+            galleryPreviews[gallery.title] && 
+            galleryPreviews[gallery.title].length
+        }
+            <ImageCarousel urls={galleryPreviews[gallery.title]} height={150} />
         {/if}
 
-        {#if gallery.images.length}
-        <ImageCarousel 
-            images={gallery.images} 
-            height={100}
-            on:select={(event) => showRemoveDialog(gallery, event.detail)}
-        />
+        {#if gallery.images && gallery.images.length}
+            <ImageCarousel 
+                images={gallery.images} 
+                height={150}
+                on:select={(event) => showRemoveDialog(gallery, event.detail)}
+            />
         {/if}
         
         <TextArea 
@@ -111,6 +161,26 @@
             class="body" 
             theme={i % 2 ? 'light' : 'dark'}
         />
+
+        <div class="footer">
+            <Button 
+                theme={i % 2 ? 'light' : 'dark'}
+                on:click={() => updateGallery(gallery)}
+            >{#if !submitting}
+                Save changes
+            {:else}
+                <Icon name="circle-notch" animate="spin" />
+            {/if}
+            </Button>
+
+            <Button 
+                theme="danger"
+                on:click={() => selectedGallery = gallery}
+            >
+                Delete<Icon name="trash" append="end"/>
+            </Button>
+        </div>
+        
     </section>
 </div>
 {/each}
@@ -123,25 +193,32 @@
     </form>
 </div>
 
+<Modal open={!!selectedImage}>
+    <Image src={selectedImage?.url} height={300} />
+    <Button theme="danger" on:click={removeImage}>
+        Delete 
+        {#if !submitting}<Icon name="trash" append="end" />
+        {:else}<Icon name="circle-notch" animate="spin" append="end" />
+        {/if}
+    </Button>
+</Modal>
 
-{#if selectedImage}
-    <div 
-        class="modal-bg" 
-        on:click={() => selectedImage = null}
-        on:keyup={() => selectedImage = null}
-        role="button"
-        tabindex={0}
-    >
-        <div class="modal-wrapper">
-            <div class="modal-content">
-                <Image src={selectedImage.url} height={300} />
-                <Button theme="danger" on:click={removeImage}>
-                    Delete<Icon name="trash" style="margin-left: 0.5rem" />
-                </Button>
-            </div>
-        </div>
+<Modal open={!!selectedGallery}>
+    <div style="font-size: 1.5rem; font-weight: bold">Are you sure?</div>
+    <div style="max-width: 400px; margin: 1rem 0;">All files associated to this gallery will be deleted. This action cannot be reversed</div>
+    <div style="display: flex; align-items: center; flex-grow: 1; gap: 0.5rem;">
+        <Button theme="dark" on:click={selectedGallery = null} style="flex: 1 1 0px; width: 0;">
+            Cancel<Icon name="x" append="end" />
+        </Button>
+
+        <Button theme="danger" on:click={deleteGallery} style="flex: 1 1 0px; width: 0;">
+            Delete
+            {#if !submitting}<Icon name="trash" append="end" />
+            {:else}<Icon name="circle-notch" animate="spin" append="end" />
+            {/if}
+        </Button>
     </div>
-{/if}
+</Modal>
 
 <style lang="scss">
     @import "$lib/styles/themes.scss";
@@ -149,12 +226,15 @@
 
     .wrapper {
         width: 100%;
-        padding: 2rem;
+        padding: 2rem 0.5rem 1rem;
         z-index: 1;
 
-        :global(img), :global(button) {
+        :global(button) {
+            box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.1);
+        }
+        :global(img) {
             border-radius: 0.25rem;
-            box-shadow: 2px 2px 10px 0 rgba(0,0,0,0.2);
+            box-shadow: 5px 5px 1px 0 rgba(0,0,0,0.2);
         }
     }
     .wrapper:first-of-type {
@@ -164,10 +244,13 @@
         margin-bottom: 2rem;
         box-shadow: 0 10px 10px 0 rgba(0,0,0,0.08);
     }
+    .wrapper.end {
+        box-shadow: 0 0.5rem 0.5rem 0 rgba(0,0,0,0.1);
+    }
     section {
         width: 100%;
 
-        .header {
+        .header, .footer {
             display: flex;
             align-items: end;
             justify-content: space-between;
@@ -176,7 +259,7 @@
         }
 
         :global(.body) {
-            margin-top: 0.5rem;
+            margin-bottom: 2rem;
         }
     }
 
@@ -204,52 +287,5 @@
     div > * {
         max-width: 600px;
         margin: 0 auto;
-    }
-
-    .modal-bg {
-        position: absolute;
-        z-index: 100;
-        width: 100%;
-        height: 100%;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        .modal-wrapper {
-            max-width: calc(100% - 2rem);
-            box-shadow: 0 0 500px 1000px rgba(0,0,0,0.5);
-            animation: appear 300ms 1 ease;
-            border-radius: 0.5rem;
-
-            @keyframes appear {
-                0% { opacity: 0 }
-                100% { opacity: 1}
-            }
-
-            .modal-content {
-                width: 100%;
-                height: 100%;
-                background-color: $white;
-                border-radius: 0.5rem;
-                border-top-right-radius: 0.5rem !important;
-
-                display: flex;
-                flex-direction: column;
-
-                gap: 1rem;
-                padding: 1rem;
-
-                :global(img) {
-                    max-width: 90%;
-                }
-
-                @include md {
-                    padding: 2rem;
-                    gap: 2rem;
-                }
-            }
-        }
     }
 </style>

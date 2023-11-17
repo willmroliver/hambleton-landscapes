@@ -4,10 +4,11 @@
     import session from "$lib/stores/session"
 
     import Image from "$lib/components/images/Image.svelte"
-    import ImageCarousel from "../images/ImageCarousel.svelte"
-    import FileUpload from "$lib/components/inputs/FileUpload.svelte"
-    import Button from "./Button.svelte"
+    import ImageCarousel from "./ImageCarousel.svelte"
+    import FileSelector from "$lib/components/inputs/FileSelector.svelte"
+    import Button from "../inputs/Button.svelte"
 	import { createEventDispatcher } from "svelte";
+	import Modal from "../general/Modal.svelte";
 
     export let height: number = 100
     export let multiple: boolean = false
@@ -20,11 +21,14 @@
     let files: FileList|null = null
     let url: string = ''
     let urls: string[] = []
+    let submitting: boolean = false
+    let success: boolean = false
+    let uploaded: number = 0
 
     export let saveImage = async (f: File|Blob|null) => {
         if (!f || !$session.uid) return
 
-        await upload(`user/${$session.uid}/images`, f as File)
+        await upload(f as File,'user', $session.uid, 'images')
     }
 
     const id: string = new UUID().id
@@ -74,14 +78,33 @@
     }
 
     const saveAndReset = async () => {
-        if (multiple && files) {
-            for (const f of files) await saveImage(f)
-        } 
-        else await saveImage(file)
+        if (submitting) return
+        submitting = true
 
-        resetInput()
+        success = false
+        dispatch('uploadstart')
 
-        dispatch('uploaded')
+        try {
+            if (multiple && files) {
+                for (const f of files) {
+                    await saveImage(f)
+                    ++uploaded
+                }
+            } 
+            else {
+                await saveImage(file)
+                ++uploaded
+            }
+            
+            success = true
+            resetInput()
+        } catch (err) {
+            console.error(err)
+        } finally {
+            submitting = false
+            uploaded = 0
+            dispatch('uploadend')
+        }
     }
 </script>
 
@@ -93,7 +116,7 @@
     {/if}
     
     {#if !file && !files}
-        <FileUpload 
+        <FileSelector 
             {theme}
             {label} 
             {multiple}
@@ -122,6 +145,17 @@
         </slot>
     {/if}
 </div>
+
+<Modal open={submitting || success} blocking={true}>
+    <div>
+        {#if submitting} Upload in progress. {uploaded}/{files?.length} completed
+        {:else} Upload complete.
+        {/if}
+    </div>
+    <div>
+        <Button theme={success ? 'primary' : 'danger'} on:click={() => success = false}>Close</Button>
+    </div>
+</Modal>
 
 <style lang="scss">
     span {

@@ -23,14 +23,14 @@ const list = async (path: string, from: string|undefined = undefined) => {
     }
 } 
 
-const upload = async (path: string, file: File): Promise<Image> => {
-    const res = await _upload(path, file)
+const upload = async (file: File, ...pathSegments: string[]): Promise<Image> => {
+    const res = await _upload(file, ...pathSegments)
     const url = await getDownloadURL(res.ref)
-    return new Image(res.ref.name, url, res.ref.fullPath)
+    return new Image('', res.ref.name, url, res.ref.fullPath)
 } 
 
-const remove = async (name: string, path: string) => {
-    return await _remove(name, path)
+const remove = async (path: string) => {
+    return await _remove(path)
 }
 
 export {

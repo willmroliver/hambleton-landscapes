@@ -29,8 +29,7 @@ class Repo {
         return results
     }
 
-    public async write(data: any, id?: string) {
-        if (id) return await db.update(id, data, this.path, ...this.pathSegments)
+    public async create(data: any) {
         return await db.write(data, this.path, ...this.pathSegments)
     }
 
