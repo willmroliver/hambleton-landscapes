@@ -55,7 +55,7 @@
     }
 </script>
 
-<div {id} >
+<div {id}>
     {#if !images.length}
         {#each urls as src}
         <Image 
@@ -84,6 +84,7 @@
         display: flex;
         flex-direction: row;
         overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
         max-width: 100vw;
 
         gap: 1rem;
