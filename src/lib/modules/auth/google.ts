@@ -1,6 +1,6 @@
 import { 
     GoogleAuthProvider, 
-    signInWithRedirect, 
+    signInWithPopup, 
     onAuthStateChanged,
 } from "firebase/auth"
 
@@ -29,7 +29,7 @@ onAuthStateChanged(auth, async (user) => {
 
 async function signIn() {
     try {
-        await signInWithRedirect(auth, provider)
+        return await signInWithPopup(auth, provider)
     } catch (err) {
         console.error(err)
     }
