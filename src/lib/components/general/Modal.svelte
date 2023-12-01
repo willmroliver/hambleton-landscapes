@@ -16,7 +16,7 @@
     $: modalClass = `modal-bg ${open ? 'modal-show' : 'modal-hide'}`
 </script>
 
-<div 
+<div
     {id}
     class={modalClass}
     on:click={() => open = blocking ? open : false }

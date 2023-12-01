@@ -48,7 +48,6 @@
 
     const parallax = () => {
         const ratio = scrollByEl.scrollTop / (scrollByEl.scrollHeight - scrollByEl.offsetHeight)
-        console.log(ratio)
         thisEl.scroll({ left: (thisEl.scrollWidth - thisEl.offsetWidth) * ratio })
 
         if (requesting) window.requestAnimationFrame(parallax)

@@ -6,7 +6,8 @@
 	import Icon from "$lib/components/general/Icon.svelte"
 	import TextInput from "$lib/components/inputs/TextInput.svelte"
 	import TextArea from "$lib/components/inputs/TextArea.svelte"
-	import Button from "$lib/components/inputs/Button.svelte";
+	import Button from "$lib/components/inputs/Button.svelte"
+    import Modal from "$lib/components/general/Modal.svelte"
 
     const galleryRepo = new GalleryRepo()
     let galleries: Gallery[] = []
@@ -16,6 +17,8 @@
         subject: '',
         body: '',
     }
+
+    let src: string = ''
 
     onMount(async () => {
         try {
@@ -99,6 +102,7 @@
                 urls={gallery.images.map(image => image.url)} 
                 height={240} 
                 autoscroll={true}
+                on:select={(event) => src = event.detail}
             />
         {/if}
 
@@ -107,6 +111,10 @@
         {/if}
     </section>
 {/each}
+
+<Modal open={!!src}>
+    <Image {src} height={600} fit="contain" />
+</Modal>
 
 <style lang="scss">
     @import "$lib/styles/breakpoints.scss";

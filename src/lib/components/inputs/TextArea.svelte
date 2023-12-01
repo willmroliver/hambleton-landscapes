@@ -20,7 +20,7 @@
     style={$$restProps.style || ''}
 >
     <label id={labelId} for={id} class={labelClass}>{label}</label>
-    <div class={`${inputClass} ${borderClass}`}>
+    <form class={`${inputClass} ${borderClass}`}>
         <textarea 
             {id} 
             bind:value={value} 
@@ -29,7 +29,7 @@
             name={$$restProps.name}
             form={$$restProps.form}
         />
-    </div>
+    </form>
 </div>
 
 <style lang="scss">
@@ -46,7 +46,7 @@
             width: 100%;
             font-size: $label-fs
         }
-        div {
+        form {
             padding-top: calc($pd-in - (2 * $border-w));
             padding-bottom: $pd-in;
 
@@ -57,6 +57,7 @@
                 font-weight: 600;
                 background: none;
                 border: none;
+                width: calc(100% - 2*($pd-in - (2 * $border-w)))
             }
             textarea:focus {
                 outline: none;
