@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-    import UUID from "$lib/modules/utils/uuid";
+	import { createEventDispatcher, onMount, tick } from "svelte"
+    import UUID from "$lib/modules/utils/uuid"
+	import Icon from "./Icon.svelte";
 
     export let open: boolean = false
     export let blocking: boolean = false
     const id: string = new UUID().id
+
+    const dispatch = createEventDispatcher()
     
     onMount(() => {
         const modalDiv = document.getElementById(id)!
@@ -13,14 +16,21 @@
         teleportDiv.appendChild(modalDiv)
     })
 
+    const close = async () => {
+        if (blocking) return
+
+        open = false
+        dispatch('close')
+    }
+
     $: modalClass = `modal-bg ${open ? 'modal-show' : 'modal-hide'}`
 </script>
 
 <div
     {id}
     class={modalClass}
-    on:click={() => open = blocking ? open : false }
-    on:keyup={() => open = blocking ? open : false }
+    on:click={close}
+    on:keyup={close}
     role="button"
     tabindex={0}
 >
@@ -30,6 +40,12 @@
         <div class="modal-content">
             <slot />
         </div>
+
+        {#if !blocking}
+            <div class="modal-x" on:click={close}>
+                <Icon name="x" />
+            </div>
+        {/if}
     </div>
 </div>
 
@@ -54,6 +70,8 @@
         transition: opacity 300ms ease;
 
         .modal-wrapper {
+            position: relative;
+
             max-width: calc(100% - 2rem);
             box-shadow: 0 0 500px 1000px rgba(0,0,0,0.5);
             animation: appear 300ms 1 ease;
@@ -82,6 +100,28 @@
                 @include md {
                     gap: 1rem;
                     padding: 1rem;
+                }
+            }
+
+            .modal-x {
+                position: absolute;
+                top: 0;
+                right: 0;
+                transform: translate(33%, -33%);
+
+                background-color: $danger;
+                color: $white;
+
+                padding: 1rem;
+                border-radius: 2rem;
+
+                box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
+
+                :global(i) {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
                 }
             }
         }

@@ -112,8 +112,13 @@
     </section>
 {/each}
 
-<Modal open={!!src}>
-    <Image {src} height={600} fit="contain" />
+<Modal open={!!src} on:close={() => src = ''}>
+    <Image 
+        {src} 
+        height={400} 
+        fit="contain"
+        on:click={() => src = ''}
+    />
 </Modal>
 
 <style lang="scss">
