@@ -7,7 +7,7 @@ import { getStorage } from "firebase/storage"
 
 const firebaseConfig = {
     apiKey: "AIzaSyC9AHaHcT0oanlzwhvcwt5m6nI6XKuJ3ko",
-    authDomain: "hambleton-landscapes.web.app",
+    authDomain: "hambletonlandscapes.co.uk",
     projectId: "hambleton-landscapes",
     storageBucket: "hambleton-landscapes.appspot.com",
     messagingSenderId: "786642997466",
