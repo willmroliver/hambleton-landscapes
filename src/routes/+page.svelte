@@ -1,7 +1,10 @@
 <script lang="ts">
-    import Image from "$lib/components/images/Image.svelte"
-	import { onMount } from "svelte"
+	import { onDestroy, onMount } from "svelte"
+
+    import { browser } from "$app/environment"
     import { GalleryRepo, Gallery } from "$lib/repos/galleries"
+
+    import Image from "$lib/components/images/Image.svelte"
 	import ImageCarousel from "$lib/components/images/ImageCarousel.svelte"
 	import Icon from "$lib/components/general/Icon.svelte"
 	import TextInput from "$lib/components/inputs/TextInput.svelte"
@@ -20,18 +23,57 @@
 
     let src: string = ''
 
+    let renderById: any = galleries.reduce((prev, curr) => {
+        prev[curr.id!] = false
+        return prev
+    }, {} as any)
+    
+    const renderImages = (main: HTMLElement) => {
+        let section: HTMLElement
+        let rect: DOMRect
+
+        galleries.forEach(g => {
+            section = document.getElementById(g.title)!
+            rect = section.getBoundingClientRect()
+
+            renderById[g.id!] = rect.top < (main.offsetHeight - 200) && rect.bottom > 500
+        })
+    }
+
+    let ticking = false
+    const throttleRenderImages = (event: Event) => {
+        if (ticking) return
+        ticking = true
+
+        window.setTimeout(() => {
+            renderImages(event.target as HTMLElement)
+            ticking = false
+        }, 100)
+    }
+
     onMount(async () => {
         try {
             let _galleries = await galleryRepo.list()
             for (const g of _galleries) await g.loadImages()
             galleries = _galleries
+
+            document.getElementById('main')!.addEventListener('scroll', throttleRenderImages)
         } catch (err) {
             console.error('failed to fetch galleries:', err)
         }
     })
 
+    onDestroy(() => {
+        if (browser) document.getElementById('main')!.removeEventListener('scroll', throttleRenderImages)
+    })
+
     $: services = [
-        ...galleries.map(g => ({ name: g.title, to: g.title, link: g.images.length || g.body })),
+        ...galleries.map(g => ({ 
+            name: g.title, 
+            to: g.title, 
+            link: g.images.length || g.body,
+            gallery: g,
+        })),
     ]
 
     $: formAction = `mailto:hambletonlandscapes@gmail.com?subject=${email.subject}`
@@ -54,7 +96,7 @@
     <h2>Bespoke Landscaping Services</h2>
     <p>
         With a combined experience of more than 50 years, we bring new life to gardens across North Yorkshire.
-        From plant to patio, in city gardens and open acres, we offer a service you can trust to deliver.
+        From plant to patio, in city gardens or open acres, we offer a service you can trust to deliver.
     </p>
 
     <div id="contact-us" class="contact-services-row">
@@ -82,14 +124,18 @@
             <h3>Our Services</h3>
             {#each services as service}
                 <a href={`#${service.to}`} class="service">
-                    <Icon name="check" append="start" margin="2rem"/>{ service.name }
+                    <Icon name="check" append="start" margin="1rem"/>{ service.name }
                     {#if service.link}
-                         <span style="font-size: 0.95rem;">- Click to see <Icon name="arrow-right" append="end" /></span>
+                        <Button 
+                            theme="secondary" 
+                            style="margin-left: auto; font-size: 0.9rem" 
+                        >
+                            See more<Icon name="arrow-right" append="end"/>
+                        </Button>
                     {/if}
                 </a>
             {/each}
         </div>
-        
     </div>
 </section>
 
@@ -97,14 +143,12 @@
     <section id={gallery.title} class={`gallery ${i % 2 ? 'background' : 'white'}`}>
         <h2>{ gallery.title }</h2>
         
-        {#if gallery.images.length}
-            <ImageCarousel 
-                urls={gallery.images.map(image => image.url)} 
-                height={240} 
-                autoscroll={true}
-                on:select={(event) => src = event.detail}
-            />
-        {/if}
+        <ImageCarousel 
+            urls={gallery.images.map(image => image.url)} 
+            height={300}
+            render={renderById[gallery.id]}
+            on:select={(event) => src = event.detail}
+        />
 
         {#if gallery.body}
             <p>{ gallery.body }</p>
@@ -115,7 +159,7 @@
 <Modal open={!!src} on:close={() => src = ''}>
     <Image 
         {src} 
-        height={400} 
+        height={500} 
         fit="contain"
         on:click={() => src = ''}
     />
@@ -206,20 +250,31 @@
         }
     }
 
-    .service {
-        font-size: 1.4rem;
-        text-wrap: nowrap;
+    .services {
+        width: 100%;
 
-        margin: 0 0 2rem;
+        .service {
+            font-size: 1.4rem;
+            text-wrap: nowrap;
+
+            display: flex;
+            align-items: center;
+
+            min-width: 100%;
+            margin: 0 0 2rem;
+        }
+        .service:last-of-type {
+            margin: 0;
+        }
     }
-    .service:last-of-type {
-        margin: 0;
-    }
+    
 
     .gallery {
         p {
             padding: 1px 0 1px 1rem;
             border-left: 1px solid $dark;   
+
+            white-space: pre-wrap;
         }
         h2 {
             margin-bottom: 1rem;
@@ -233,7 +288,7 @@
 
     @include md {
         section {
-            padding: 3rem calc(50% - 20rem);
+            padding: 3rem calc(50% - 22em);
         }
         .contact-services-row {
             flex-direction: row;

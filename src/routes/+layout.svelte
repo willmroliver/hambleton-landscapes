@@ -87,8 +87,8 @@
         width: 100vw;
         max-width: 100vw;
 
-        height: 100vh;
-        max-height: 100vh;
+        height: 100%;
+        max-height: 100%;
 
         display: grid;
         grid-template-rows: 5rem auto;

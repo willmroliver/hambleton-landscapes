@@ -42,7 +42,7 @@
         </div>
 
         {#if !blocking}
-            <div class="modal-x" on:click={close}>
+            <div class="modal-x dark" on:click={close}>
                 <Icon name="x" />
             </div>
         {/if}
@@ -51,7 +51,7 @@
 
 <style global lang="scss">
     @import "$lib/styles/breakpoints.scss";
-    @import "$lib/styles/colors.scss";
+    @import "$lib/styles/themes.scss";
 
     .modal-bg {
         position: absolute;
@@ -92,30 +92,17 @@
 
                 gap: 0.5rem;
                 padding: 0.5rem;
-
-                :global(img) {
-                    max-width: 90%;
-                }
-
-                @include md {
-                    gap: 1rem;
-                    padding: 1rem;
-                }
             }
 
             .modal-x {
                 position: absolute;
                 top: 0;
                 right: 0;
-                transform: translate(33%, -33%);
 
-                background-color: $danger;
-                color: $white;
+                padding: 0.75rem;
+                border-radius: 0 0.5rem 0 0.5rem;
 
-                padding: 1rem;
-                border-radius: 2rem;
-
-                box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
+                border: 0.2rem solid $white;
 
                 :global(i) {
                     position: absolute;

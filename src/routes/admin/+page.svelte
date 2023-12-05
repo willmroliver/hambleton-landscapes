@@ -10,14 +10,13 @@
 
     import { Gallery, GalleryRepo } from "$lib/repos/galleries"
     import { Image as ImageClass, ImageRepo } from "$lib/repos/images"
-
 	import { onMount } from "svelte"
-
 
     let galleryRepo = new GalleryRepo()
     let galleries: Gallery[] = []
     let galleryPreviews: any = {}
     let selectedGallery: Gallery|null = null
+    let showDeleteGallery: boolean = false
 
     let imageRepo: ImageRepo|null = null
     let selectedImage: ImageClass|null = null
@@ -116,8 +115,13 @@
     })
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 {#each galleries as gallery, i}
-<div class={`${i % 2 ? 'dark' : 'background'} ${i == galleries.length - 1 ? 'end' : ''} wrapper`}>
+<div 
+    class={`${i % 2 ? 'dark' : 'background'} ${i == galleries.length - 1 ? 'end' : ''} wrapper`}
+    on:click={() => selectedGallery = gallery }
+>
     <section>
         <div class="header">
             <TextInput 
@@ -146,7 +150,7 @@
             <ImageCarousel urls={galleryPreviews[gallery.title]} height={150} />
         {/if}
 
-        {#if gallery.images && gallery.images.length}
+        {#if gallery.images && gallery.images.length && selectedGallery?.id === gallery.id}
             <ImageCarousel 
                 images={gallery.images} 
                 height={150}
@@ -166,11 +170,11 @@
             <Button 
                 theme={i % 2 ? 'light' : 'dark'}
                 on:click={() => updateGallery(gallery)}
-            >{#if !submitting}
+            >
                 Save changes
-            {:else}
-                <Icon name="circle-notch" animate="spin" />
-            {/if}
+                {#if submitting}
+                    <Icon name="circle-notch" animate="spin" append="end" />
+                {/if}
             </Button>
 
             <Button 
@@ -203,11 +207,11 @@
     </Button>
 </Modal>
 
-<Modal open={!!selectedGallery}>
+<Modal open={showDeleteGallery}>
     <div style="font-size: 1.5rem; font-weight: bold">Are you sure?</div>
     <div style="max-width: 400px; margin: 1rem 0;">All files associated to this gallery will be deleted. This action cannot be reversed</div>
     <div style="display: flex; align-items: center; flex-grow: 1; gap: 0.5rem;">
-        <Button theme="dark" on:click={selectedGallery = null} style="flex: 1 1 0px; width: 0;">
+        <Button theme="dark" on:click={() => { showDeleteGallery = false }} style="flex: 1 1 0px; width: 0;">
             Cancel<Icon name="x" append="end" />
         </Button>
 
@@ -229,9 +233,6 @@
         padding: 2rem 0.5rem 1rem;
         z-index: 1;
 
-        :global(button) {
-            box-shadow: 2px 2px 5px 0 rgba(0,0,0,0.1);
-        }
         :global(img) {
             border-radius: 0.25rem;
             box-shadow: 5px 5px 1px 0 rgba(0,0,0,0.2);

@@ -3,6 +3,7 @@
 
     export let fit: string = 'cover'
     export let height: string|number
+    export let render: boolean = true
 
     const dispatch = createEventDispatcher()
 </script>
@@ -10,11 +11,11 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <img 
-    src={$$restProps.src} 
+    id={$$restProps.id}
+    src={render ? $$restProps.src : ''} 
     alt={$$restProps.alt} 
-    class={`${fit} ${$$restProps.class || ''}`}
+    class={`${fit} ${render ? '' : 'norender'} ${$$restProps.class || ''}`}
     {height}
-    style="max-width: 100vw"
     on:click
 />
 
@@ -27,5 +28,11 @@
     }
     .cover {
         object-fit: cover;
+    }
+    .norender {
+        display: none;
+    }
+    img {
+        max-width: 100vw;
     }
 </style>
