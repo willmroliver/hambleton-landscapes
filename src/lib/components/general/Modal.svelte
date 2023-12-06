@@ -73,6 +73,8 @@
             position: relative;
 
             max-width: calc(100% - 2rem);
+            max-height: calc(100% - 2rem);
+
             box-shadow: 0 0 500px 1000px rgba(0,0,0,0.5);
             animation: appear 300ms 1 ease;
             border-radius: 0.5rem;
@@ -83,12 +85,15 @@
             }
 
             .modal-content {
-                width: 100%;
-                height: 100%;
                 background-color: $white;
                 border-radius: 0.5rem;
                 display: flex;
                 flex-direction: column;
+
+                max-width: 100%;
+                max-height: 100%;
+                overflow: hidden;
+                overflow-y: auto;
 
                 gap: 0.5rem;
                 padding: 0.5rem;

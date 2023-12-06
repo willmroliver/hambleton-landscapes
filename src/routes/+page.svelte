@@ -159,7 +159,6 @@
 <Modal open={!!src} on:close={() => src = ''}>
     <Image 
         {src} 
-        height={500} 
         fit="contain"
         on:click={() => src = ''}
     />

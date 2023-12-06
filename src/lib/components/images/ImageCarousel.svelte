@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from "svelte"
+	import { afterUpdate, createEventDispatcher, onMount } from "svelte"
     const dispatch = createEventDispatcher()
 
     import Image from "./Image.svelte"
@@ -26,6 +26,9 @@
     onMount(() => {
         carousel = document.getElementById(uuid.id)!
         carousel.style.minHeight = `calc(${height * (imageCount() ? 1 : 0)}px + 2rem)`
+    })
+
+    afterUpdate(() => {
         shiftImageEls()
     })
 
@@ -34,13 +37,11 @@
     const next = () => {
         if (index === imageCount() - 1) return
         ++index
-        shiftImageEls()
     }
 
     const previous = () => {
         if (index === 0) return
         --index
-        shiftImageEls()
     }
 
     /**
@@ -64,7 +65,10 @@
         let diff
         let image
 
+        let centreWidth = uuid.element(index)!.offsetWidth
+
         for (let i = l; i < u; ++i) {
+            console.log(l, u, i, '-', uuid.id)
             image = uuid.element(i)!
             diff = index - i
 
@@ -77,9 +81,9 @@
                     break
                 case -1:
                 case 1:
-                    image.style.left = diff < 0 ? '80%' : '20%'
+                    image.style.left = `calc(50% ${diff < 0 ? '+' : '-'} ${centreWidth / 2}px)`
                     image.style.transform = 'translateX(-50%) scale(0.5)'
-                    image.style.opacity = '0.4'
+                    image.style.opacity = '0.3'
                     image.style.zIndex = '1'
                     image.style.pointerEvents = ''
                     break
@@ -90,7 +94,6 @@
             }
         }
     }
-
 </script>
 
 <div id={uuid.id}>
@@ -127,27 +130,29 @@
     div {
         position: relative;
         width: 100%;
-        padding: 1rem 0 1.5rem 0;
+        padding: 1rem 0 1.5rem;
 
         :global(img) {
             position: absolute;
             transition: all 200ms ease;
+
+            max-width: 100%;
         }
 
         :global(button) {
             position: absolute;
             z-index: 3;
-            top: calc(50% - 1.25rem);
+            top: calc(50% - 2rem);
 
-            padding: 0.75rem;
+            padding: 1rem 0.75rem;
         }
 
         :global(button:first-child) {
-            left: 0;
+            left: -0.5rem;
         }
 
         :global(button:last-child) {
-            right: 0;
+            right: -0.5rem;
         }
     }
 </style>

@@ -2,7 +2,6 @@
 	import { createEventDispatcher } from "svelte"
 
     export let fit: string = 'cover'
-    export let height: string|number
     export let render: boolean = true
 
     const dispatch = createEventDispatcher()
@@ -15,7 +14,7 @@
     src={render ? $$restProps.src : ''} 
     alt={$$restProps.alt} 
     class={`${fit} ${render ? '' : 'norender'} ${$$restProps.class || ''}`}
-    {height}
+    height={$$restProps.height || ''}
     on:click
 />
 
@@ -33,6 +32,7 @@
         display: none;
     }
     img {
-        max-width: 100vw;
+        max-width: 100%;
+        max-height: calc(100vh - 3rem);
     }
 </style>
