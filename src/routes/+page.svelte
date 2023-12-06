@@ -36,7 +36,7 @@
             section = document.getElementById(g.title)!
             rect = section.getBoundingClientRect()
 
-            renderById[g.id!] = rect.top < (main.offsetHeight - 200) && rect.bottom > 500
+            renderById[g.id!] = renderById[g.id!] || rect.top < (main.offsetHeight - 0)
         })
     }
 

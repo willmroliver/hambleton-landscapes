@@ -4,6 +4,7 @@ import {
     ref as _ref, 
     list as _list,
     deleteObject,
+    updateMetadata,
 } from "firebase/storage"
 
 const ref = (path: string) => {
@@ -17,6 +18,10 @@ const upload = async (file: File, ...pathSegments: string[]) => {
     const uploadRef = ref(fullPath)
 
     const snapshot = await uploadBytes(uploadRef, file)
+
+    updateMetadata(uploadRef, { 
+        cacheControl: 'public,max-age=86400' 
+    })
 
     return snapshot
 }
