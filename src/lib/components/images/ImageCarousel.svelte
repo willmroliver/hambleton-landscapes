@@ -5,8 +5,8 @@
     import Image from "./Image.svelte"
     import UUID from "$lib/modules/utils/uuid"
     import type { Image as ImageClass } from "$lib/repos/images"
-	import Button from "../inputs/Button.svelte";
-	import Icon from "../general/Icon.svelte";
+	import Button from "../inputs/Button.svelte"
+	import Icon from "../general/Icon.svelte"
 
     const uuid = new UUID(document)
     export let urls: string[] = []
@@ -24,6 +24,8 @@
     }
 
     onMount(() => {
+        if (!imageCount()) return
+        
         carousel = document.getElementById(uuid.id)!
         carousel.style.minHeight = `calc(${height * (imageCount() ? 1 : 0)}px + 2rem)`
     })
@@ -59,6 +61,8 @@
     }
 
     const shiftImageEls = () => {
+        if (!imageCount()) return
+
         const l = lowBound()
         const u = upBound()
 
@@ -68,7 +72,6 @@
         let centreWidth = uuid.element(index)!.offsetWidth
 
         for (let i = l; i < u; ++i) {
-            console.log(l, u, i, '-', uuid.id)
             image = uuid.element(i)!
             diff = index - i
 
@@ -96,6 +99,7 @@
     }
 </script>
 
+{#if imageCount()}
 <div id={uuid.id}>
     <Button {theme} on:click={previous}><Icon name="chevron-left" /></Button>
     {#if !images.length}
@@ -125,6 +129,7 @@
     {/if}
     <Button {theme} on:click={next}><Icon name="chevron-right" /></Button>
 </div>
+{/if}
 
 <style lang="scss">
     div {

@@ -7,6 +7,7 @@
     import Button from "$lib/components/inputs/Button.svelte"
     import TextInput from "$lib/components/inputs/TextInput.svelte"
     import TextArea from "$lib/components/inputs/TextArea.svelte"
+    import Draggable from "$lib/components/general/Draggable.svelte";
 
     import { Gallery, GalleryRepo } from "$lib/repos/galleries"
     import { Image as ImageClass, ImageRepo } from "$lib/repos/images"
@@ -26,6 +27,11 @@
 
     let loading: boolean = true
     let submitting: boolean = false
+
+    onMount(async () => {
+        await loadGalleries()
+        loading = false
+    })
     
     const loadGalleries = async () => {
         try {
@@ -33,7 +39,7 @@
 
             for (const g of _galleries) {
                 await g.loadImages()
-                galleryPreviews[g.title] = []
+                galleryPreviews[g.id!] = []
             }
             galleries = _galleries
         } catch (err) {
@@ -86,6 +92,11 @@
         }
     }
 
+    const setPreviews = (gallery: Gallery, urls: string[]) => {
+        let order = 0;
+        galleryPreviews[gallery.id!] = urls
+    }
+
     const showRemoveDialog = (gallery: Gallery, image: ImageClass) => {
         if (!gallery.id) return
         
@@ -109,21 +120,39 @@
         }
     }
 
-    onMount(async () => {
-        await loadGalleries()
-        loading = false
-    })
+    let from: string
+    let start: number
+
+    const drag = (gallery: string, index: number) => {
+        from = gallery
+        start = index
+    }
+
+    const drop = (gallery: string, index: number) => {
+        if (from !== gallery) {
+            from = ''
+            return
+        }
+
+        const move = galleryPreviews[from].splice(start, 1)
+
+        galleryPreviews[from] = [
+            ...galleryPreviews[from].slice(0, index), 
+            move[0], 
+            ...galleryPreviews[from].slice(index),
+        ]
+
+        galleryPreviews = { ...galleryPreviews }
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 {#each galleries as gallery, i}
-<div 
-    class={`${i % 2 ? 'dark' : 'background'} ${i == galleries.length - 1 ? 'end' : ''} wrapper`}
-    on:click={() => selectedGallery = gallery }
->
+<div class={`${i % 2 ? 'dark' : 'background'} ${i == galleries.length - 1 ? 'end' : ''} wrapper`}>
     <section>
         <div class="header">
+            <!-- Section Title -->
             <TextInput 
                 bind:value={gallery.title}
                 label="Title"  
@@ -137,20 +166,29 @@
                 height={100}
                 multiple={true}
                 preview={false}
-                on:select={(event) => galleryPreviews[gallery.title] = event.detail.urls}
+                on:select={(event) => { setPreviews(gallery, event.detail.urls) }}
                 on:uploadend={loadGalleries}
-                on:reset={() => galleryPreviews[gallery.title] = []}
+                on:reset={() => galleryPreviews[gallery.id || ''] = []}
             />
         </div>
 
-        {#if 
-            galleryPreviews[gallery.title] && 
-            galleryPreviews[gallery.title].length
-        }
-            <ImageCarousel urls={galleryPreviews[gallery.title]} height={150} />
+        <!-- Image Upload Previews -->
+        {#if gallery.id && galleryPreviews[gallery.id] && galleryPreviews[gallery.id].length}
+            <div class="preview">
+                {#each galleryPreviews[gallery.id] as url, i}
+                    <Draggable
+                        data={({ gallery: gallery.id, index: i })}
+                        on:drag={event => { drag(event.detail.gallery, event.detail.index) }}
+                        on:drop={event => { drop(event.detail.gallery, event.detail.index) }}
+                    >
+                        <Image src={url} height={150} />
+                    </Draggable>
+                {/each}
+            </div>
         {/if}
 
-        {#if gallery.images && gallery.images.length && selectedGallery?.id === gallery.id}
+        <!-- Uploaded Images -->
+        {#if gallery.images && gallery.images.length}
             <ImageCarousel 
                 images={gallery.images} 
                 height={150}
@@ -158,6 +196,7 @@
             />
         {/if}
         
+        <!-- Section Text -->
         <TextArea 
             bind:value={gallery.body} 
             label="Section text" 
@@ -166,6 +205,7 @@
             theme={i % 2 ? 'light' : 'dark'}
         />
 
+        <!-- Actions -->
         <div class="footer">
             <Button 
                 theme={i % 2 ? 'light' : 'dark'}
@@ -263,7 +303,13 @@
             margin-bottom: 2rem;
         }
     }
+    .preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
 
+        margin-bottom: 0.5rem;
+    }
     .new-gallery {
         position: sticky;
         bottom: 0;

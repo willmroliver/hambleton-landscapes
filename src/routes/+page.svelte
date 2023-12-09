@@ -146,7 +146,7 @@
         <ImageCarousel 
             urls={gallery.images.map(image => image.url)} 
             height={300}
-            render={renderById[gallery.id]}
+            render={renderById[gallery.id || '']}
             on:select={(event) => src = event.detail}
         />
 

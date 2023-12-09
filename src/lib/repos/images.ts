@@ -7,13 +7,15 @@ class Image {
     path: string
     url: string
     description: string
+    order: number
 
-    public constructor(id: string|undefined, name: string, url: string, path: string, description: string = '') {
+    public constructor(id: string|undefined, name: string, url: string, path: string, description: string = '', order: number = 0) {
         this.id = id
         this.name = name
         this.url = url
         this.path = path
         this.description = description
+        this.order = order
     }
 }
 
@@ -55,13 +57,21 @@ class ImageRepo {
             name: image.name,
             url: image.url,
             path: image.path,
+            order: image.order,
         }
 
         return  _data
     }
 
     private image(data: any) {
-        return new Image(data.id, data.name, data.url, data.path, data.description)
+        return new Image(
+            data.id, 
+            data.name, 
+            data.url,
+            data.path, 
+            data.description, 
+            data.order
+        )
     }
 }
 

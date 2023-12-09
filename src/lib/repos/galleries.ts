@@ -19,9 +19,9 @@ class Gallery {
     }
 
     public async saveImage(f: File|Blob|null) {
-        if (!f || !this.title) return
+        if (!f || !this.id) return
 
-        const image = await upload(f as File, 'admin', 'images', this.title)
+        const image = await upload(f as File, 'admin', 'galleries', this.id)
         await this.imageRepo.create(image)
 
         this.images.push(image)
