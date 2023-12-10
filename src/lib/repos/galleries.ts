@@ -9,6 +9,8 @@ class Gallery {
     images: Image[]
     imageRepo: ImageRepo
 
+    private imagesLoaded: boolean = false
+
     public constructor(id: string, title: string, body: string = '', images: Image[] = []) {
         this.id = id
         this.title = title
@@ -18,19 +20,26 @@ class Gallery {
         this.imageRepo = new ImageRepo(id)
     }
 
-    public async saveImage(f: File|Blob|null) {
+    public async uploadImage(f: File|Blob|null) {
         if (!f || !this.id) return
 
+        // So that we set correct positions in the image meta.
+        if (!this.imagesLoaded) await this.loadImages()
+
         const image = await upload(f as File, 'admin', 'galleries', this.id)
+        
+        image.meta.position = this.images.length
         await this.imageRepo.create(image)
-
         this.images.push(image)
-
+        
         return image
     }
 
     public async loadImages() {
         this.images = await this.imageRepo.list()
+        this.images.sort((a, b) => a.meta.position > b.meta.position ? 1 : -1)
+        
+        this.imagesLoaded = true
     }
 }
 

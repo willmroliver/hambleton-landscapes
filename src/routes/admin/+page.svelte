@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ImageUpload from "$lib/components/images/ImageUpload.svelte"
+    import ImageSelector from "$lib/components/inputs/ImageSelector.svelte"
     import ImageCarousel from "$lib/components/images/ImageCarousel.svelte"
     import Image from "$lib/components/images/Image.svelte"
 	import Icon from "$lib/components/general/Icon.svelte"
@@ -15,7 +15,7 @@
 
     let galleryRepo = new GalleryRepo()
     let galleries: Gallery[] = []
-    let galleryPreviews: any = {}
+    let selectedImages: any = {}
     let selectedGallery: Gallery|null = null
     let showDeleteGallery: boolean = false
 
@@ -28,6 +28,9 @@
     let loading: boolean = true
     let submitting: boolean = false
 
+    let uploading: number = 0
+    let uploaded: number = 0
+
     onMount(async () => {
         await loadGalleries()
         loading = false
@@ -39,7 +42,7 @@
 
             for (const g of _galleries) {
                 await g.loadImages()
-                galleryPreviews[g.id!] = []
+                selectedImages[g.id!] = []
             }
             galleries = _galleries
         } catch (err) {
@@ -92,9 +95,26 @@
         }
     }
 
-    const setPreviews = (gallery: Gallery, urls: string[]) => {
-        let order = 0;
-        galleryPreviews[gallery.id!] = urls
+    const selectImages = (gallery: Gallery, images: object[]) => {
+        selectedImages[gallery.id!] = images
+        selectedImages = { ...selectedImages }
+    }
+
+    const saveImages = async (gallery: Gallery) => {
+        const selected = selectedImages[gallery.id!]
+        if (!selected) return
+
+        uploading = selected.length
+        uploaded = 0
+
+        for (let i = 0; i < uploading; ++i) {
+            await gallery.uploadImage(selected[i].file)
+            ++uploaded
+        }
+
+        delete selectedImages[gallery.id!]
+
+        galleries = [ ...galleries ]
     }
 
     const showRemoveDialog = (gallery: Gallery, image: ImageClass) => {
@@ -134,15 +154,15 @@
             return
         }
 
-        const move = galleryPreviews[from].splice(start, 1)
+        const move = selectedImages[from].splice(start, 1)
 
-        galleryPreviews[from] = [
-            ...galleryPreviews[from].slice(0, index), 
+        selectedImages[from] = [
+            ...selectedImages[from].slice(0, index), 
             move[0], 
-            ...galleryPreviews[from].slice(index),
+            ...selectedImages[from].slice(index),
         ]
 
-        galleryPreviews = { ...galleryPreviews }
+        selectedImages = { ...selectedImages }
     }
 </script>
 
@@ -158,30 +178,28 @@
                 label="Title"  
                 theme={i % 2 ? 'light' : 'dark'} 
             />
-            <ImageUpload 
-                saveImage={async (f) => { await gallery.saveImage(f) }} 
+            <ImageSelector 
                 label="Add images"
                 theme="secondary" 
                 saveTheme={i % 2 ? 'light' : 'dark'}
-                height={100}
+                height={150}
                 multiple={true}
                 preview={false}
-                on:select={(event) => { setPreviews(gallery, event.detail.urls) }}
-                on:uploadend={loadGalleries}
-                on:reset={() => galleryPreviews[gallery.id || ''] = []}
+                on:change={(event) => { selectImages(gallery, event.detail) }}
+                on:save={() => { saveImages(gallery) } }
             />
         </div>
 
         <!-- Image Upload Previews -->
-        {#if gallery.id && galleryPreviews[gallery.id] && galleryPreviews[gallery.id].length}
+        {#if gallery.id && selectedImages[gallery.id] && selectedImages[gallery.id].length}
             <div class="preview">
-                {#each galleryPreviews[gallery.id] as url, i}
+                {#each selectedImages[gallery.id] as image, i}
                     <Draggable
                         data={({ gallery: gallery.id, index: i })}
                         on:drag={event => { drag(event.detail.gallery, event.detail.index) }}
                         on:drop={event => { drop(event.detail.gallery, event.detail.index) }}
                     >
-                        <Image src={url} height={150} />
+                        <Image src={image.url} height={150} />
                     </Draggable>
                 {/each}
             </div>
@@ -262,6 +280,16 @@
             {/if}
         </Button>
     </div>
+</Modal>
+
+<Modal open={!!uploading} blocking={true}>
+    {#if uploading !== uploaded}
+        <div>Uploading {uploaded}/{uploading}</div>
+        <Icon name="circle-notch" animate="spin" style="align-self: center" />
+    {:else}
+        <div>Upload completed</div>
+        <Button theme="dark" on:click={() => { uploading = 0; uploaded = 0 }}>Done</Button>
+    {/if}
 </Modal>
 
 <style lang="scss">

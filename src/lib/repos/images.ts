@@ -3,19 +3,15 @@ import { remove as storageRemove } from "$lib/modules/storage/image"
 
 class Image {
     id: string|undefined
-    name: string
     path: string
     url: string
-    description: string
-    order: number
+    meta: any
 
-    public constructor(id: string|undefined, name: string, url: string, path: string, description: string = '', order: number = 0) {
+    public constructor(id: string|undefined, url: string, path: string, meta: any = {}) {
         this.id = id
-        this.name = name
         this.url = url
         this.path = path
-        this.description = description
-        this.order = order
+        this.meta = meta
     }
 }
 
@@ -48,16 +44,15 @@ class ImageRepo {
 
         return await Promise.all([
             this.repo.remove(image.id), 
-            storageRemove(image.path)]
-        )
+            storageRemove(image.path)
+        ])
     }
 
     private data(image: Image) {
         const _data = {
-            name: image.name,
             url: image.url,
             path: image.path,
-            order: image.order,
+            meta: image.meta
         }
 
         return  _data
@@ -66,11 +61,9 @@ class ImageRepo {
     private image(data: any) {
         return new Image(
             data.id, 
-            data.name, 
             data.url,
             data.path, 
-            data.description, 
-            data.order
+            data.meta, 
         )
     }
 }

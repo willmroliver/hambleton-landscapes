@@ -28,7 +28,6 @@
             files = input.files
             dispatch('change', multiple ? { files } : { file: files[0] })
         }
-        
         else files = null
     }
 
