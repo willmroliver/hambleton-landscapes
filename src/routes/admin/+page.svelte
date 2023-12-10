@@ -268,7 +268,7 @@
     </Button>
 </Modal>
 
-<Modal open={showDeleteGallery}>
+<Modal open={showDeleteGallery} on:close={() => { showDeleteGallery = false }}>
     <div style="font-size: 1.5rem; font-weight: bold">Are you sure?</div>
     <div style="max-width: 400px; margin: 1rem 0;">All files associated to this gallery will be deleted. This action cannot be reversed</div>
     <div style="display: flex; align-items: center; flex-grow: 1; gap: 0.5rem;">
