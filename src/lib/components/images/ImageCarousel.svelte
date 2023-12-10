@@ -61,7 +61,9 @@
     }
 
     const shiftImageEls = () => {
-        if (!imageCount()) return
+        const n = imageCount()
+        if (!n) return
+        if (index >= n) index = n - 1
 
         const l = lowBound()
         const u = upBound()

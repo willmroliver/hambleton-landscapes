@@ -1,5 +1,4 @@
 import Repo from "./repo";
-import { remove as storageRemove } from "$lib/modules/storage/image"
 
 class Image {
     id: string|undefined
@@ -42,17 +41,14 @@ class ImageRepo {
     public async remove(image: Image) {
         if (!image.id) return
 
-        return await Promise.all([
-            this.repo.remove(image.id), 
-            storageRemove(image.path)
-        ])
+        return await this.repo.remove(image.id)
     }
 
     private data(image: Image) {
         const _data = {
             url: image.url,
             path: image.path,
-            meta: image.meta
+            meta: image.meta,
         }
 
         return  _data

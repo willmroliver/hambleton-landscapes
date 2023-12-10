@@ -10,17 +10,15 @@
     import Draggable from "$lib/components/general/Draggable.svelte";
 
     import { Gallery, GalleryRepo } from "$lib/repos/galleries"
-    import { Image as ImageClass, ImageRepo } from "$lib/repos/images"
+    import type { Image as ImageClass } from "$lib/repos/images"
 	import { onMount } from "svelte"
 
     let galleryRepo = new GalleryRepo()
     let galleries: Gallery[] = []
     let selectedImages: any = {}
     let selectedGallery: Gallery|null = null
-    let showDeleteGallery: boolean = false
-
-    let imageRepo: ImageRepo|null = null
     let selectedImage: ImageClass|null = null
+    let showDeleteGallery: boolean = false
 
     let title: string = ''
     let body: string = ''
@@ -100,6 +98,11 @@
         selectedImages = { ...selectedImages }
     }
 
+    const clearSelected = (galleryId: string) => {
+        delete selectedImages[galleryId]
+        selectedImages = { ...selectedImages }
+    }
+
     const saveImages = async (gallery: Gallery) => {
         const selected = selectedImages[gallery.id!]
         if (!selected) return
@@ -120,21 +123,21 @@
     const showRemoveDialog = (gallery: Gallery, image: ImageClass) => {
         if (!gallery.id) return
         
-        imageRepo = new ImageRepo(gallery.id)
+        selectedGallery = gallery
         selectedImage = image
     }
 
     const removeImage = async () => {
-        if (submitting) return
+        if (submitting || !selectedGallery || !selectedImage) return
         submitting = true
 
         try {
-            await imageRepo!.remove(selectedImage!)
+            await selectedGallery.removeImage(selectedImage.id as string)
             await loadGalleries()
         } catch (err) {
             console.error(err)
         } finally {
-            imageRepo = null
+            selectedGallery = null
             selectedImage = null
             submitting = false
         }
@@ -182,11 +185,11 @@
                 label="Add images"
                 theme="secondary" 
                 saveTheme={i % 2 ? 'light' : 'dark'}
-                height={150}
                 multiple={true}
                 preview={false}
                 on:change={(event) => { selectImages(gallery, event.detail) }}
                 on:save={() => { saveImages(gallery) } }
+                on:cancel={() => { clearSelected(gallery.id || '') }}
             />
         </div>
 
@@ -199,7 +202,7 @@
                         on:drag={event => { drag(event.detail.gallery, event.detail.index) }}
                         on:drop={event => { drop(event.detail.gallery, event.detail.index) }}
                     >
-                        <Image src={image.url} height={150} />
+                        <Image src={image.url} height={75} square={true} />
                     </Draggable>
                 {/each}
             </div>
@@ -237,7 +240,7 @@
 
             <Button 
                 theme="danger"
-                on:click={() => selectedGallery = gallery}
+                on:click={() => { selectedGallery = gallery; showDeleteGallery = true }}
             >
                 Delete<Icon name="trash" append="end"/>
             </Button>
@@ -256,7 +259,7 @@
 </div>
 
 <Modal open={!!selectedImage}>
-    <Image src={selectedImage?.url} height={300} />
+    <Image src={selectedImage?.url} />
     <Button theme="danger" on:click={removeImage}>
         Delete 
         {#if !submitting}<Icon name="trash" append="end" />

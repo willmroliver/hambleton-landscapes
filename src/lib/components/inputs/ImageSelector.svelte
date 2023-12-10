@@ -6,7 +6,6 @@
     import FileSelector from "$lib/components/inputs/FileSelector.svelte"
     import Button from "./Button.svelte"
 	import { createEventDispatcher } from "svelte";
-	import Modal from "$lib/components/general/Modal.svelte";
 
     export let height: number = 100
     export let multiple: boolean = false
@@ -55,6 +54,11 @@
         images = []
         image = null
     }
+
+    const cancel = () => {
+        dispatch('cancel')
+        reset()
+    }
 </script>
 
 <div class={$$restProps.class || ''} style={$$restProps.style || ''}>
@@ -86,7 +90,7 @@
                 <Button 
                     theme="danger" 
                     class="image-upload-options"
-                    on:click={reset}
+                    on:click={cancel}
                 >
                     Cancel
                 </Button>

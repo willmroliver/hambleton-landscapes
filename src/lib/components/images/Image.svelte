@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte"
-
     export let fit: string = 'cover'
     export let render: boolean = true
+    export let square: boolean = false
 
-    const dispatch = createEventDispatcher()
+    $: imageClass = `${fit} ${render ? '' : 'norender'} ${square ? 'square' : ''}`
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -13,7 +12,7 @@
     id={$$restProps.id}
     src={render ? $$restProps.src : ''} 
     alt={$$restProps.alt} 
-    class={`${fit} ${render ? '' : 'norender'} ${$$restProps.class || ''}`}
+    class={`${imageClass} ${$$restProps.class || ''}`}
     height={$$restProps.height || ''}
     on:click
 />
@@ -30,6 +29,9 @@
     }
     .norender {
         display: none;
+    }
+    .square { 
+        aspect-ratio: 1;
     }
     img {
         max-width: 100%;

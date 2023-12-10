@@ -82,7 +82,7 @@
 <div id="home">
     <div id="contact-details">
         <a href="mailto:hambletonlandscapes@gmail.com"><Icon name="envelope" size="lg" append="start" />hambletonlandscapes@gmail.com</a>
-        <span><Icon name="phone" size="lg" append="start" />+447935132800</span>
+        <a href="tel:+447935132800"><Icon name="phone" size="lg" append="start" />+447935132800</a>
     </div>
     <Image 
         src="logo-primary.svg" 

@@ -1,6 +1,7 @@
 import Repo from "./repo";
 import { Image, ImageRepo } from "./images";
-import { upload } from "$lib/modules/storage/image"
+import { upload, remove as storageRemove } from "$lib/modules/storage/image"
+
 
 class Gallery {
     id: string|undefined
@@ -29,10 +30,27 @@ class Gallery {
         const image = await upload(f as File, 'admin', 'galleries', this.id)
         
         image.meta.position = this.images.length
-        await this.imageRepo.create(image)
+        const result = await this.imageRepo.create(image)
+        
+        image.id = result.id
         this.images.push(image)
         
         return image
+    }
+
+    public async removeImage(id: string) {
+        const index = this.images.findIndex(i => i.id === id)
+        if (index === -1) return
+
+        const image = this.images.splice(index, 1)[0]
+
+        await storageRemove(image.path)
+        await this.imageRepo.remove(image)
+
+        for (let i = 0; i < this.images.length; ++i) {
+            this.images[i].meta.position = i
+            this.imageRepo.update(this.images[i])
+        }
     }
 
     public async loadImages() {
@@ -67,10 +85,8 @@ class GalleryRepo {
     public async remove(gallery: Gallery) {
         if (!gallery.id) return
 
-        for (const image of gallery.images) {
-            await gallery.imageRepo.remove(image)
-        }
-
+        gallery.images.forEach(image => storageRemove(image.path))
+        
         return await this.repo.remove(gallery.id)
     }
 
