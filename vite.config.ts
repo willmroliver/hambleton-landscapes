@@ -6,6 +6,7 @@ export default defineConfig({
 	server: {
 		headers: {
 			'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-		}
+		},
+		host: true,
 	}
 });

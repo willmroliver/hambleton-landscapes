@@ -109,7 +109,7 @@
                 method="post" 
                 enctype="text/plain"
             >
-                <span><Icon name="phone" size="lg" append="start" margin="1rem" />+447935132800</span>
+                <a href="tel:7742925072"><Icon name="phone" size="lg" append="start" margin="1rem" />+447935132800</a>
     
                 <span><Icon name="envelope" size="lg" append="start" margin="1rem" />Or, send an email below</span>
                 <TextInput label="Subject *" bind:value={email.subject} form="form-contact-us" />
@@ -141,17 +141,18 @@
 
 {#each galleries.filter(g => g.images.length || g.body ) as gallery, i}
     <section id={gallery.title} class={`gallery ${i % 2 ? 'background' : 'white'}`}>
-        <h2>{ gallery.title }</h2>
+        <h2 class={`${renderById[gallery.id || ''] ? 'slide-in' : 'slide-in-before'}`}>{ gallery.title }</h2>
         
         <ImageCarousel 
             urls={gallery.images.map(image => image.url)} 
             height={300}
             render={renderById[gallery.id || '']}
             on:select={(event) => src = event.detail}
+            class={`${renderById[gallery.id || ''] ? 'slide-in' : 'slide-in-before'}`}
         />
 
         {#if gallery.body}
-            <p>{ gallery.body }</p>
+            <p class={`${renderById[gallery.id || ''] ? 'slide-in' : 'slide-in-before'}`}>{ gallery.body }</p>
         {/if}
     </section>
 {/each}
@@ -168,6 +169,15 @@
     @import "$lib/styles/breakpoints.scss";
     @import "$lib/styles/themes.scss";
 
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 100%;
+        }
+    }
+
     #home {
         position: sticky;
         z-index: -1;
@@ -179,6 +189,8 @@
 
         width: 100%;
         min-height: 75vh;
+
+        animation: 1s ease-out 0s 1 fade-in;
 
         #contact-details {
             position: absolute;
@@ -249,6 +261,21 @@
         }
     }
 
+    @keyframes slide-up {
+        0% {
+            transform: translateY(25%);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    section:first-of-type {
+        animation: 1s ease-out 0s 1 slide-up;
+    }
+
     .services {
         width: 100%;
 
@@ -283,6 +310,25 @@
             border-radius: 0.25rem;
             box-shadow: 5px 5px 1px 0 rgba(0,0,0,0.2);
         }
+    }
+
+    @keyframes slide-in {
+        0% {
+            transform: translateX(-50%);
+            opacity: 0;
+        }
+        100% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    :global(.slide-in) {
+        animation: 800ms ease-out 0s 1 slide-in;
+    }
+
+    :global(.slide-in-before) {
+        opacity: 0;
     }
 
     @include md {

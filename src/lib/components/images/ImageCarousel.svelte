@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { afterUpdate, createEventDispatcher, onMount } from "svelte"
+    import { swipe } from "svelte-gestures"
+
     const dispatch = createEventDispatcher()
 
     import Image from "./Image.svelte"
@@ -44,6 +46,20 @@
     const previous = () => {
         if (index === 0) return
         --index
+    }
+
+    const handleSwipe = (event: any) => {
+        console.log(event.detail)
+        switch (event.detail.direction) {
+            case 'left':
+                next()
+                break
+            case 'right':
+                previous()
+                break
+            default:
+                break
+        }
     }
 
     /**
@@ -102,7 +118,7 @@
 </script>
 
 {#if imageCount()}
-<div id={uuid.id}>
+<div id={uuid.id} use:swipe={ { timeframe: 300, minSwipeDistance: 50 } } on:swipe={handleSwipe} class={`${$$restProps.class || ''}`}>
     <Button {theme} on:click={previous}><Icon name="chevron-left" /></Button>
     {#if !images.length}
         {#each urls as src, i}
@@ -113,7 +129,7 @@
             {fit}
             render={lowBound() <= i && i < upBound() && render}
             class={i === index ? 'active' : ''}
-            on:click={() => dispatch('select', src)}
+            on:click={() => { if (i === index) dispatch('select', src) }}
         />
         {/each}
     {:else}
