@@ -201,6 +201,8 @@
             top: 1.25rem;
             left: 1.25rem;
 
+            z-index: 100 !important;
+
             display: flex;
             flex-direction: column;
             gap: 1rem;

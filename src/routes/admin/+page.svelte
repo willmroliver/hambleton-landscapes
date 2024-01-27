@@ -7,7 +7,7 @@
     import Button from "$lib/components/inputs/Button.svelte"
     import TextInput from "$lib/components/inputs/TextInput.svelte"
     import TextArea from "$lib/components/inputs/TextArea.svelte"
-    import Draggable from "$lib/components/general/Draggable.svelte";
+    import Draggable from "$lib/components/general/Draggable.svelte"
 
     import { Gallery, GalleryRepo } from "$lib/repos/galleries"
     import type { Image as ImageClass } from "$lib/repos/images"

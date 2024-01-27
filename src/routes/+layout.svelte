@@ -100,7 +100,10 @@
 
         transition: all $navbar-ms ease;
 
-        #main {            
+        #main {
+            position: relative;
+            z-index: 0;
+            
             grid-area: main;
             display: flex;
             flex-direction: column;
