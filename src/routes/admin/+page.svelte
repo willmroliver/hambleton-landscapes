@@ -187,11 +187,15 @@
             move[0],
             ...galleries.slice(index),
         ]
-        
+    }
+
+    const updateGalleryOrders = async () => {
         for (let i = 0; i < galleries.length; i++) {
             galleries[i].meta.order = i + 1;
-            updateGallery(galleries[i], false)
+            await updateGallery(galleries[i])
         }
+
+        shuffling = false
     }
 </script>
 
@@ -326,22 +330,22 @@
 </Modal>
 
 <Modal bind:open={shuffling}>
-    <div style="padding: 0.5rem">
-        {#each galleries as gallery, i}
-        <Draggable
-            data={({ index: i })}
-            on:drag={event => { shuffleStart(event.detail.index) }}
-            on:drop={event => { shuffleStop(event.detail.index) }}
+    {#each galleries as gallery, i}
+    <Draggable
+        data={({ index: i })}
+        on:drag={event => { shuffleStart(event.detail.index) }}
+        on:drop={event => { shuffleStop(event.detail.index) }}
+    >
+        <div
+            style="padding: 0.6rem; font-size: 1.5rem; border-radius: 0.25rem;" 
+            class="light"
         >
-            <div
-                style="padding: 0.6rem; margin: 0.25rem; font-size: 1.5rem; border-radius: 0.25rem;" 
-                class="light"
-            >
-                { gallery.title }
-            </div>
-        </Draggable>
-        {/each}
-    </div>
+            { gallery.title }
+        </div>
+    </Draggable>
+    {/each}
+
+    <Button theme="dark" on:click={updateGalleryOrders} style="margin-top: 0.5rem">Save</Button>
 </Modal>
 
 <style lang="scss">
