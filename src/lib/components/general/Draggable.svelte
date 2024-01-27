@@ -4,15 +4,16 @@
 
     export let data: any
     
-    const drag = () => {
+    const drag = (event: any) => {
+        event.dataTransfer.setData('text/plain', JSON.stringify(data))
         dispatch('drag', data)
     }
 
-    const over = () => {
+    const over = (event: any) => {
         dispatch('over', data)
     }
 
-    const drop = () => {
+    const drop = (event: any) => {
         dispatch('drop', data)
     }
 </script>

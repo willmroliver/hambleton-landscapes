@@ -106,10 +106,14 @@
             <form
                 id="form-contact-us" 
                 action={formAction} 
-                method="post" 
+                method="post"
                 enctype="text/plain"
             >
-                <a href="tel:7742925072"><Icon name="phone" size="lg" append="start" margin="1rem" />+447935132800</a>
+                <a href="tel:+447935132800">
+                    <Icon name="phone" size="lg" append="start" margin="1rem" />
+                    +447935132800
+                    <Icon name="hand-pointer" append="end" margin="0.5rem" type="regular"/>
+                </a>
     
                 <span><Icon name="envelope" size="lg" append="start" margin="1rem" />Or, send an email below</span>
                 <TextInput label="Subject *" bind:value={email.subject} form="form-contact-us" />

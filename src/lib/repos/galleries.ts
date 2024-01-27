@@ -9,14 +9,16 @@ class Gallery {
     body: string
     images: Image[]
     imageRepo: ImageRepo
+    meta: any
 
     private imagesLoaded: boolean = false
 
-    public constructor(id: string, title: string, body: string = '', images: Image[] = []) {
+    public constructor(id: string, title: string, body: string = '', images: Image[] = [], meta: any = {}) {
         this.id = id
         this.title = title
         this.body = body
         this.images = images
+        this.meta = meta
 
         this.imageRepo = new ImageRepo(id)
     }
@@ -69,7 +71,10 @@ class GalleryRepo {
     }
 
     public async list() {
-        return (await this.repo.list()).map(data => this.gallery(data))
+        return (await this.repo.list()).map(data => this.gallery(data)).sort((a, b) => {
+            if (a.meta.order && b.meta.order) return a.meta.order > b.meta.order ? 1 : -1
+            return 0
+        })
     }
 
     public async create(gallery: Gallery) {
@@ -94,11 +99,12 @@ class GalleryRepo {
         return {
             title: gallery.title,
             body: gallery.body,
+            meta: gallery.meta,
         }
     }
 
     private gallery(data: any) {
-        return new Gallery(data.id, data.title, data.body, [])
+        return new Gallery(data.id, data.title, data.body, [], data.meta)
     }
 }
 

@@ -25,6 +25,7 @@
 
     let loading: boolean = true
     let submitting: boolean = false
+    let shuffling: boolean = false
 
     let uploading: number = 0
     let uploaded: number = 0
@@ -65,8 +66,8 @@
         }
     }
 
-    const updateGallery = async (gallery: Gallery) => {
-        if (submitting) return
+    const updateGallery = async (gallery: Gallery, blocking = true) => {
+        if (submitting && blocking) return
         submitting = true
 
         try {
@@ -167,7 +168,36 @@
 
         selectedImages = { ...selectedImages }
     }
+
+    let shuffleIndex: number
+
+    const shuffleStart = (index: number) => {
+        if (index < 0 || index >= galleries.length) return
+
+        shuffleIndex = index
+    }
+
+    const shuffleStop = (index: number) => {
+        if (index < 0 || index >= galleries.length || index === shuffleIndex) return
+
+        const move = galleries.splice(shuffleIndex, 1)
+
+        galleries = [
+            ...galleries.slice(0, index),
+            move[0],
+            ...galleries.slice(index),
+        ]
+        
+        for (let i = 0; i < galleries.length; i++) {
+            galleries[i].meta.order = i + 1;
+            updateGallery(galleries[i], false)
+        }
+    }
 </script>
+
+<div style="padding: 1rem 0.5rem; width: 100%">
+    <Button theme="light" style="z-index: 1;" on:click={() => { shuffling = true }}>Shuffle Sections</Button>
+</div>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -293,6 +323,25 @@
         <div>Upload completed</div>
         <Button theme="dark" on:click={() => { uploading = 0; uploaded = 0 }}>Done</Button>
     {/if}
+</Modal>
+
+<Modal bind:open={shuffling}>
+    <div style="padding: 0.5rem">
+        {#each galleries as gallery, i}
+        <Draggable
+            data={({ index: i })}
+            on:drag={event => { shuffleStart(event.detail.index) }}
+            on:drop={event => { shuffleStop(event.detail.index) }}
+        >
+            <div
+                style="padding: 0.6rem; margin: 0.25rem; font-size: 1.5rem; border-radius: 0.25rem;" 
+                class="light"
+            >
+                { gallery.title }
+            </div>
+        </Draggable>
+        {/each}
+    </div>
 </Modal>
 
 <style lang="scss">

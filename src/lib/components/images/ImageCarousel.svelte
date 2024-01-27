@@ -49,7 +49,6 @@
     }
 
     const handleSwipe = (event: any) => {
-        console.log(event.detail)
         switch (event.detail.direction) {
             case 'left':
                 next()
