@@ -157,7 +157,7 @@
 {/each}
 
 <Modal open={!!src} on:close={() => src = ''}>
-    <Image 
+    <Image
         {src} 
         fit="contain"
         on:click={() => src = ''}
